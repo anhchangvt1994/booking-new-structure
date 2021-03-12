@@ -64,7 +64,7 @@ src
 ### DummyData structure
 
 src
-|__ js
+|__ dummy-data
 <br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|__ <mark>data-store</mark> (A folder that include all of dummy data files, which used to define dummy data quicky for render process)
 
 ---
