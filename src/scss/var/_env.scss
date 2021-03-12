@@ -1,0 +1,12 @@
+// ######################################################
+// Env variable
+// ######################################################
+
+
+// Url
+// -------------------
+$mz-image-url: '../image';
+$mz-image-bg-url: '../image/bg';
+$mz-image-icon-url: $mz-image-url + '/icon';
+$mz-image-icon-svg-url: $mz-image-url + '/icon-svg';
+$mz-upload-url: '../../upload';

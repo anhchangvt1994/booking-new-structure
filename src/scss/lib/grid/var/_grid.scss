@@ -1,0 +1,29 @@
+//====================================
+// space default unit
+//====================================
+$default-unit: 8px;
+
+//====================================
+// grid breakpoint variables
+//====================================
+$break-point-xs: 375px;
+$break-point-xxs: 425px;
+$break-point-sm: 480px;
+$break-point-md: 640px;
+$break-point-normal: 786px;
+$break-point-lg: 992px;
+$break-point-xl: 1024px;
+$break-point-xxl: 1280px;
+
+$break-point-map: (
+  'xs': $break-point-xs,
+  'xxs': $break-point-xxs,
+  'sm': $break-point-sm,
+  'md': $break-point-md,
+  'normal': $break-point-normal,
+  'lg': $break-point-lg,
+  'xl': $break-point-xl,
+  'xxl': $break-point-xxl,
+);
+
+$break-point-map-keys: map-keys($break-point-map);

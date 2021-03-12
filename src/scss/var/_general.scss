@@ -1,0 +1,35 @@
+//=============================================================
+// Định nghĩa base space cho get base space function
+//=============================================================
+$mz-base-space: 8px;
+
+//=============================================================
+// transition time during
+//=============================================================
+$mz-transition-time-xs: 0.3s;
+$mz-transition-time-default: 0.3s;
+
+//=============================================================
+// special color
+//=============================================================
+$mz-web-color-facebook: #315caf;
+$mz-web-color-google-plus: #ea3731;
+$mz-web-color-twitter: #1da1f2;
+$mz-web-color-zalo: #008fe5;
+
+//=============================================================
+// z-index define
+//=============================================================
+$mz-z-index-lv-n1: -10;
+$mz-z-index-lv-0: 0;
+$mz-z-index-lv-1: 10;
+$mz-z-index-lv-2: 20;
+$mz-z-index-lv-3: 30;
+$mz-z-index-lv-4: 40;
+$mz-z-index-lv-5: 50;
+$mz-z-index-lv-6: 60; // Từ đây đổ xuống chủ yếu cho các thành phần ngoài section
+$mz-z-index-lv-7: 70;
+$mz-z-index-lv-8: 80;
+$mz-z-index-lv-9: 90;
+$mz-z-index-lv-10: 100;
+$mz-z-index-lv-11: 110;

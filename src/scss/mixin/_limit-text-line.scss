@@ -1,0 +1,15 @@
+@use '../var' as var;
+/*
+  Giới hạn số dòng text và hiển thị ... ở dòng cuối giới hạn
+*/
+@mixin mz-limit-text-line($_font-size: var.$font-size-default, $_line-limit: 1) {
+  @if (is-absolute-length($_font-size)) and is-integer($_line-limit) {
+    $line-height: mz-get-line-height-from-font-size($_font-size);
+    // max-height: $line-height * $_line-limit; // ! Tắt thử để kiểm tra xem có cần thiết dòng này để limit text không
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: $_line-limit;
+  }
+}

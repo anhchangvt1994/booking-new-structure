@@ -1,0 +1,160 @@
+@use '../../../var' as var;
+@use '../../../var/grid' as grid;
+@use '../../../function/space' as space;
+@use '../../../mixin/limit-text-line' as limit-text-line;
+
+//=====================================================
+// content-modal
+//=====================================================
+.content-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  z-index: -99;
+  visibility: hidden;
+  transition: opacity ease .3s;
+
+  &__bg {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(#000000, 0.3);
+  }
+
+  &.is-show {
+    opacity: 1;
+    visibility: visible;
+    z-index: 100;
+  }
+
+  &__section {
+    position: absolute;
+    max-width: grid.$mz-grid-xxs-min;
+    left: 0;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    margin: 0 auto;
+    width: calc(100% - 32px);
+
+    &__head {
+      $_content-modal__section__head: &;
+
+      position: relative;
+      padding: space.get-space-from-base(6) 0;
+      border-top-left-radius: 8px;
+      border-top-right-radius: 8px;
+
+      @each $key , $_header-bg-color-val in var.$color-map {
+        &.is-#{$key} {
+          background: $_header-bg-color-val;
+
+          @if $key == 'javascript' {
+            #{ $_content-modal__section__head }__logo-img {
+              position: relative;
+              top: 7px;
+            }
+          } @else if $key == 'vuejs' {
+            #{  $_content-modal__section__head }__logo-img {
+              position: relative;
+              top: 10px;
+            }
+          }
+        }
+      }
+
+      &__logo-outer {
+        display: flex;
+        width: 140px;
+        height: 140px;
+        margin: 0 auto;
+        border-radius: 50%;
+        background: #ffffff;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+      }
+
+      &__logo-img {
+        max-width: 70%;
+        max-height: 70%;
+      }
+
+      &__close-btn {
+        position: absolute;
+        background: #ffffff;
+        border-radius: 50%;
+        width: 32px;
+        height: 32px;
+        cursor: pointer;
+        right: -10px;
+        top: -10px;
+
+        &:before,
+        &:after {
+          position: absolute;
+          content: '';
+          display: block;
+          width: 50%;
+          height: 2px;
+          background: #98A5B9;
+          left: 0;
+          right: 0;
+          top: 0;
+          bottom: 0;
+          margin: auto;
+        }
+
+        &:before{
+          transform: rotate(45deg);
+        }
+
+        &:after {
+          transform: rotate(-45deg);
+        }
+      }
+    }
+
+    &__body {
+      border-bottom-left-radius: 8px;
+      border-bottom-right-radius: 8px;
+      padding: space.get-space-from-base(8);
+      background: #ffffff;
+
+      &__content {
+        @include limit-text-line.mz-limit-text-line(14px, 4);
+      }
+
+      &__link {
+        position: relative;
+        margin: space.get-space-from-base(8) -#{ space.get-space-from-base(8) } -#{ space.get-space-from-base(8) };
+
+        &:before {
+          position: absolute;
+          content: '';
+          display: block;
+          width: 80%;
+          height: 1px;
+          background: #EAEDF1;
+          top: 0;
+          left: 0;
+          right: 0;
+          margin: 0 auto;
+        }
+
+        a {
+          display: block;
+          padding: space.get-space-from-base(6);
+          color: #0080FF;
+          text-align: center;
+          text-decoration: none;
+        }
+      }
+    }
+  }
+}

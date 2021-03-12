@@ -1,0 +1,5 @@
+@use 'lib/grid/var/grid' as grid;
+
+@function get-space-from-base($_space-unit) {
+  @return $_space-unit * grid.$default-unit;
+}

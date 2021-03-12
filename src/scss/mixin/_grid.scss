@@ -1,0 +1,94 @@
+//=======================================================
+// Định nghĩa mixin cho media query trên từng breakpoint
+//=======================================================
+// screen up
+//-------------------------------------------------------
+@mixin screen-xxs-up {
+  @media (min-width: $mz-grid-xxs-min) {
+    @content;
+  }
+}
+
+@mixin screen-sm-up {
+  @media (min-width: $mz-grid-sm-min) {
+    @content;
+  }
+}
+
+@mixin screen-md-up {
+  @media (min-width: $mz-grid-md-min) {
+    @content;
+  }
+}
+
+@mixin screen-lg-up {
+  @media (min-width: $mz-grid-lg-min) {
+    @content;
+  }
+}
+
+@mixin screen-xl-up {
+  @media (min-width: $mz-grid-xl-min) {
+    @content;
+  }
+}
+
+// screen down
+//-------------------------------------------------------
+@mixin screen-xxs-down {
+  @media (min-width: $mz-grid-xxs-max) {
+    @content;
+  }
+}
+
+@mixin screen-sm-down {
+  @media (min-width: $mz-grid-sm-max) {
+    @content;
+  }
+}
+
+@mixin screen-md-down {
+  @media (min-width: $mz-grid-md-max) {
+    @content;
+  }
+}
+
+@mixin screen-lg-down {
+  @media (min-width: $mz-grid-max) {
+    @content;
+  }
+}
+
+@mixin screen-xl-down {
+  @media (min-width: $mz-grid-max) {
+    @content;
+  }
+}
+
+// screen other custom
+//-------------------------------------------------------
+@mixin screen-other-custom($_var-grid-custom, $_var-grid-status: 'up') {
+  @if not is-string($_var-grid-status) or ($_var-grid-status != 'up' and $_var-grid-status != 'down') {
+    @error 'grid status phải là `up` hoặc `down`';
+  }
+
+  @else if not is-absolute-length($_var-grid-custom) {
+    @error 'grid custom phải là số với đơn vị `px`';
+  }
+
+  // screen custom grid up
+  //----------------------------------
+  @else if $_var-grid-status != 'up' {
+    @media (min-width: $_var-grid-custom) {
+      @content;
+    }
+  }
+
+  // screen custom grid down
+  //----------------------------------
+  @else if $_var-grid-status != 'down' {
+    @media (max-width: $_var-grid-custom) {
+      @content;
+    }
+  }
+}

@@ -1,0 +1,22 @@
+@function get-line-height-from-font-size($_size: 'default') {
+  $_font-size: 0;
+
+  @if(map-has-key($mz-map-font-size, $_size)) {
+    $_font-size: map-get($mz-map-font-size, $_size);
+  } @else if (map-has-key($mz-map-heading-font-size, $_size)) {
+    $_font-size: map-get($mz-map-heading-font-size, $_size);
+  } @else if (is-absolute-length($_size)) {
+    $_font-size: $_size;
+  } @else {
+    @error '$_size: ' + $_size + ' is not valid';
+  }
+
+  $line-height: floor($_font-size / 2) + $_font-size;
+
+  // Nếu line-height là số lẽ thì sẽ làm tròn xuống 1px
+  @if ($line-height % 2 != 0) {
+    $line-height: $line-height - 1px;
+  }
+
+  @return $line-height;
+}

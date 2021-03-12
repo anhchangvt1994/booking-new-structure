@@ -1,0 +1,19 @@
+//=================================================
+// định nghĩa các breakpoint
+//=================================================
+// (min-width: ...)
+//-------------------------------------------------
+$mz-grid-xs: 320px;
+$mz-grid-xxs-min: 425px;
+$mz-grid-sm-min: 640px;
+$mz-grid-md-min: 768px;
+$mz-grid-lg-min: 992px;
+$mz-grid-xl-min: 1360px;
+
+// (max-width: ...)
+//-------------------------------------------------
+$mz-grid-xxs-max: $mz-grid-xxs-min - 1;
+$mz-grid-sm-max: $mz-grid-sm-min - 1;
+$mz-grid-md-max: $mz-grid-md-min - 1;
+$mz-grid-lg-max: $mz-grid-lg-min - 1;
+$mz-grid-xl-max: $mz-grid-xl-min - 1;

@@ -1,0 +1,84 @@
+//========================================================
+// Định nghĩa màu
+//========================================================
+$mz-main-color: #0d1019;
+$mz-main-color-root: $mz-main-color;
+$mz-main-color-light: lighten($mz-main-color, 70%);
+$mz-main-color-lighter: lighten($mz-main-color, 80%);
+$mz-main-color-lightest: lighten($mz-main-color, 83%);
+$mz-main-color-dark: lighten($mz-main-color, 26%);
+$mz-main-color-darker: lighten($mz-main-color, 10%);
+
+$mz-orange: #ffa500;
+$mz-orange-root: $mz-orange;
+$mz-orange-light: lighten($mz-orange, 10%);
+$mz-orange-lighter: lighten($mz-orange, 35%);
+$mz-orange-lightest: lighten($mz-orange, 45%);
+$mz-orange-dark: darken($mz-orange, 10%);
+$mz-orange-darker: darken($mz-orange, 18%);
+$mz-orange-overlay: blend-hardlight($mz-orange,lighten($mz-main-color, 70%));
+
+$mz-yellow: #f2d537;
+
+$mz-yellow-root: $mz-yellow;
+$mz-yellow-light: lighten($mz-yellow, 10%);
+$mz-yellow-lighter: lighten($mz-yellow, 35%);
+$mz-yellow-lightest: lighten($mz-yellow, 45%);
+$mz-yellow-dark: darken($mz-yellow, 10%);
+$mz-yellow-darker: darken($mz-yellow, 18%);
+$mz-yellow-overlay: blend-hardlight($mz-yellow,lighten($mz-main-color, 70%));
+
+$map-palette-color-with-level: (
+  'main': (
+    'lightest': $mz-main-color-lightest,
+    'lighter': $mz-main-color-lighter,
+    'light': $mz-main-color-light,
+    'root': $mz-main-color-root,
+    'dark': $mz-main-color-dark,
+    'darker': $mz-main-color-darker,
+  ),
+  'orange': (
+    'lightest': $mz-orange-lightest,
+    'lighter': $mz-orange-lighter,
+    'light': $mz-orange-light,
+    'root': $mz-orange-root,
+    'dark': $mz-orange-dark,
+    'darker': $mz-orange-darker,
+  ),
+  'yellow': (
+    'lightest': $mz-yellow-light,
+    'lighter': $mz-yellow-lighter,
+    'light': $mz-yellow-light,
+    'root': $mz-yellow-root,
+    'dark': $mz-yellow-dark,
+    'darker': $mz-yellow-darker,
+  ),
+);
+
+// -------------------
+// Map level color
+// -------------------
+$map-color-level-index: (
+  'lightest': -3,
+  'lighter': -2,
+  'light': -1,
+  'root': 0,
+  'dark': 1,
+  'darker': 2,
+);
+
+$map-color-level-key: (
+  -3: 'lightest',
+  -2: 'lighter',
+  -1: 'light',
+  0: 'root',
+  1: 'dark',
+  2: 'darker',
+);
+
+$mz-max-color-level-index: 2;
+
+$map-color-overlay: (
+  'orange': $mz-orange-overlay,
+  'yellow': $mz-yellow-overlay,
+);

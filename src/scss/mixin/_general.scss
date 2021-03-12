@@ -1,0 +1,29 @@
+/*
+DOC:
+- Tạo bộ khung cơ bản cho 1 icon
+*/
+@mixin make-icon-ready() {
+  display: inline-block;
+  font-style: normal;
+  line-height: 1;
+  font-variant: normal;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+}
+
+/*
+	Exam use:
+
+	@include placeholder {
+    font-style:italic;
+    color: white;
+    font-weight:100;
+	}
+*/
+
+@mixin placeholder {
+  &::-webkit-input-placeholder {@content}
+  &:-moz-placeholder           {@content}
+  &::-moz-placeholder          {@content}
+  &:-ms-input-placeholder      {@content}
+}

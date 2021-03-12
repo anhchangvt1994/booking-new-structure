@@ -1,0 +1,35 @@
+{
+  "compileOnSave": true,
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "declaration": true,
+    "baseUrl": "./",
+    "allowJs": true,
+    "paths": {
+      "@common/*": ["app/common/*"],
+      "@common/enum/*": ["app/common/enum/*"],
+      "@common/define/*": ["app/common/define/*"],
+      "@common/util/*": ["app/common/util/*"],
+      "@common/config/*": ["app/common/config/*"],
+      "@common/lib/*": ["app/common/lib/*"],
+      "@common/store/*": ["app/common/store/*"],
+      "@source-data": ["src/data/index"],
+      "@src/data/*": ["src/data/*"],
+      "@src/dummy-data/*": ["src/dummy-data/*"],
+
+      "~jsPath/*": ["./src/js/*"],
+      "~jsBasePath/*": ["./src/js/base/*"],
+      "~jsPartialPath/*": ["./src/js/partial/*"],
+    },
+    "typeRoots": ["./node_modules/@types","./app/common"],
+  },
+
+  "exclude": [
+    "node_modules",
+    "dist",
+    "tmp",
+    "image",
+    "font",
+  ]
+}

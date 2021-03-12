@@ -1,0 +1,24 @@
+@use 'lib/grid/var/grid' as grid;
+@use 'lib/grid/function/grid' as grid-function;
+
+.container {
+  max-width: 640px;
+  padding: 0 grid-function.get-space-from-base(2);
+  margin: 0 auto;
+
+  @media (min-width: grid.$break-point-lg) {
+    max-width: 768px;
+  }
+
+  @media (min-width: grid.$break-point-lg) {
+    max-width: 768px;
+  }
+
+  @media (min-width: grid.$break-point-lg) {
+    max-width: 1024px;
+  }
+
+  @media (min-width: grid.$break-point-xl) {
+    max-width: 1280px;
+  }
+}

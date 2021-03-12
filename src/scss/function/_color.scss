@@ -1,0 +1,161 @@
+/*
+  Kiểm tra level màu có hợp lệ không
+*/
+@function _check-color-level-key-is-valid($_level-key) {
+  @if map-has-key($map-color-level-index, $_level-key) {
+    @return true;
+  }
+
+  @return false;
+}
+
+@function _check-color-level-index-is-valid($_level-index) {
+  @if map-has-key($map-color-level-key, $_level-index) {
+    @return true;
+  }
+
+  @return false;
+}
+
+/*
+- Sử dụng cho các color trong pallette màu chính
+- Exam:
+  Run:
+    $_level-index = _convert-color-level-key-to-index('dark')
+  Result
+    $_level-index == 4
+*/
+@function _convert-color-level-key-to-index($_level-key) {
+  @if _check-color-level-key-is-valid($_level-key) {
+    @return map-get($map-color-level-index, $_level-key);
+  }
+
+  @error '$level-name is not valid';
+}
+
+/*
+- Sử dụng cho các color trong pallette màu chính
+- Exam:
+  Run:
+    $level-name = _convert-color-level-key-to-index(4)
+  Result
+    $level-name == 'dark'
+*/
+@function _convert-color-level-index-to-key($_level-index) {
+  @if _check-color-level-index-is-valid($_level-index) {
+    @return map-get($map-color-level-key, $_level-index);
+  }
+
+  @error '$_level-index is not valid';
+}
+
+/*
+- Sử dụng cho các color trong pallette màu chính
+- Exam:
+  Run:
+    $primary-dark = getColor('primary','dark')
+    $warning = getColor('warning', 2)
+  Result
+    $primary-dark == '#0066CC'
+    $warning == '#FFA400'
+*/
+@function get-color-with-level($_color-name, $_color-level: 'root') {
+  @if not map-has-key($map-palette-color-with-level, $_color-name) {
+    @error 'get-color-with-level: $_color-name not isset in palette map';
+  }
+
+  $_map-color: map-get($map-palette-color-with-level,$_color-name);
+  $_color-level-key: null;
+
+  @if _check-color-level-index-is-valid($_color-level) {
+    $_color-level-key: _convert-color-level-index-to-key($_color-level);
+  } @else {
+    $_color-level-key: $_color-level;
+  }
+
+  @if not _check-color-level-key-is-valid($_color-level-key) {
+    @error 'get-color-with-level: $_color-level not isset in palette map';
+  }
+
+  @return map-get($_map-color, $_color-level-key);
+}
+
+/*
+- Lấy thông tin màu sắc, cấp độ màu trong palette màu chính
+*/
+@function get-color-in-palette($_color) {
+  @each $_main-color-name, $_map-main-color in $map-palette-color-with-level {
+    @each $_level-key, $_level-color in $_map-main-color {
+      @if($_level-color == $_color) {
+        @return (
+          'color-name': $_main-color-name,
+          'level-key': $_level-key,
+        );
+      }
+    }
+  }
+
+  @return null;
+}
+
+/*
+- Nguyên tắc lấy màu hover
+  - Lấy màu bên phải trong bảng palette
+  - Không tồn tại màu bên phải thì lấy tăng 5% darken
+*/
+@function get-hover-color($_color) {
+  @if not is-hex-color($_color) {
+    @warn '$_color: ' + $_color + ' is not valid';
+    @return null;
+  }
+
+  // Kiểm tra mã màu có tồn tại trong bảng không
+  $_map-color: get-color-in-palette($_color);
+
+  // Nếu không tăng mã đậm thêm 5%
+  @if not $_map-color {
+    @return darken($_color, 5%);
+  }
+
+  $_color-name: map-get($_map-color, 'color-name');
+  $_level-key: map-get($_map-color,'level-key');
+  $_level-index: _convert-color-level-key-to-index($_level-key);
+  $_next-level-index: $_level-index + 1;
+
+  // Đối với màu truyền vào ở cột level daker rồi thì màu hover sẽ là màu ở level 0
+  @if ($_next-level-index > $max-color-level-index) {
+    $_next-level-index: 0;
+
+    // Riêng màu gray-darker thì màu hover sẽ là primary
+    @if($_color-name == 'gray') {
+      $_color-name: 'primary';
+    }
+  }
+
+  $_next-level-key: _convert-color-level-index-to-key($_next-level-index);
+
+  @return get-color-with-level(
+    $_color-name,
+    $_next-level-key
+  );
+}
+
+// Lấy màu overlay color từ map
+@function get-color-overlay($_color-name){
+  @if map-has-key($map-color-overlay, $_color-name){
+    @return map-get($map-color-overlay, $_color-name);
+  }
+  @else{
+    @error "Unknown color name: " #{$_color-name};
+  }
+}
+
+// Lấy màu extend color từ map
+@function getColorExtend($_color-name){
+  @if map-has-key($map-color-extend, $_color-name){
+    @return map-get($map-color-extend, $_color-name);
+  }
+  @else{
+    @error "Unknown color name: " #{$_color-name};
+  }
+}

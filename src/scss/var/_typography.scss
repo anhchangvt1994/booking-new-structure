@@ -1,0 +1,38 @@
+//==============================================================
+// Font size / line height for text
+//==============================================================
+$mz-font-size-xs: 12px;
+$mz-font-size-sm: 13px;
+$mz-font-size-normal: 14px;
+$mz-font-size-md: 16px;
+$mz-font-size-lg: 18px;
+$mz-font-size-default: $mz-font-size-normal;
+$mz-font-size-key-default: 'default';
+
+$mz-map-font-size: (
+  'xs': $mz-font-size-xs,
+  'sm': $mz-font-size-sm,
+  'normal': $mz-font-size-normal,
+  'md': $mz-font-size-md,
+  'lg': $mz-font-size-lg,
+  'default': $mz-font-size-default,
+);
+
+//==============================================================
+// Font size / line height for heading
+//==============================================================
+$mz-h1-font-size: 32px;
+$mz-h2-font-size: 28px;
+$mz-h3-font-size: 24px;
+$mz-h4-font-size: 20px;
+$mz-h5-font-size: 18px;
+$mz-h6-font-size: 16px;
+
+$mz-map-heading-font-size: (
+  'h1': $mz-h1-font-size,
+  'h2': $mz-h2-font-size,
+  'h3': $mz-h3-font-size,
+  'h4': $mz-h4-font-size,
+  'h5': $mz-h5-font-size,
+  'h6': $mz-h6-font-size,
+);

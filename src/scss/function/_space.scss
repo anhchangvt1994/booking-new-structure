@@ -1,0 +1,12 @@
+@use 'sass:meta';
+
+//======================================================
+// Định nghĩa công thức tính space (dựa trên bội số 8)
+//======================================================
+@function get-space-from-base($_int-scale) {
+  @if meta.type-of($_int-scale) != 'number' {
+    @error 'param of get-space-from-base must be a number!';
+  }
+
+  @return 2px * $_int-scale;
+}

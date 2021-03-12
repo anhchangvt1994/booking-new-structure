@@ -1,0 +1,82 @@
+////
+// A collection of function for advanced type checking
+// @author Hugo Giraudel
+////
+
+@function is-string($value) {
+  @return type-of($value) == 'string';
+}
+
+@function is-number($value) {
+  @return type-of($value) == 'number';
+}
+
+@function is-color($value) {
+  @return type-of($value) == 'color';
+}
+
+@function is-hex-color($color) {
+  @if not is-color($color) {
+    @warn '"' + $color + '" is not hex color #1';
+    @return false;
+  }
+
+  $str-color: $color + '';
+  $str-color: str-remove-whitespace($str-color);
+
+  /*
+  ! Có một vấn đề nghiêm trọng là khi build production thì các mã màu đặc biệt như #3399ff khi convert sang string sẽ bị rút gòn thành dạng #39f
+  ! Vì vậy ở phần str-length($str-color) phải check < 4 mới đúng được
+  */
+  @if str-length($str-color) < 4 or str-index($str-color,'#') < 0 {
+    @warn '"' + $color + '" is not hex color #2';
+    @return false;
+  }
+
+  @return true;
+}
+
+
+@function is-time($value) {
+  @return is-number($value) and index('ms' 's', unit($value)) != null;
+}
+
+@function is-duration($value) {
+  @return is-time($value);
+}
+
+@function is-angle($value) {
+  @return is-number($value) and index('deg' 'rad' 'grad' 'turn', unit($value)) != null;
+}
+
+@function is-frequency($value) {
+  @return is-number($value) and index('Hz' 'kHz', unit($value)) != null;
+}
+
+@function is-integer($value) {
+  @return is-number($value) and round($value) == $value;
+}
+
+@function is-relative-length($value) {
+  @return is-number($value) and index('em' 'ex' 'ch' 'rem' 'vw' 'vh' 'vmin' 'vmax', unit($value)) != null;
+}
+
+@function is-absolute-length($value) {
+  @return is-number($value) and index('cm' 'mm' 'in' 'px' 'pt' 'pc', unit($value)) != null;
+}
+
+@function is-percentage($value) {
+  @return is-number($value) and unit($value) == '%';
+}
+
+@function is-length($value) {
+  @return is-relative-length($value) or is-absolute-length($value);
+}
+
+@function is-resolution($value) {
+  @return is-number($value) and index('dpi' 'dpcm' 'dppx', unit($value)) != null;
+}
+
+@function is-position($value) {
+  @return is-length($value) or is-percentage($value) or index('top' 'right' 'bottom' 'left' 'center', $value) != null;
+}

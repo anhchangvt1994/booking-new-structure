@@ -1,0 +1,52 @@
+@mixin mz-text-size($_size: 'normal') {
+  @if(map-has-key($mz-map-font-size, $_size)) {
+    $_font-size: map-get($mz-map-font-size, $_size);
+    font-size: $_font-size;
+    line-height: mz-get-line-height-from-font-size($_font-size);
+  } @else if (map-has-key($mz-map-heading-font-size, $_size)) {
+    $_font-size: map-get($mz-map-heading-font-size, $_size);
+    font-size: $_font-size;
+    line-height: mz-get-line-height-from-font-size($_font-size);
+  } @else if (is-absolute-length($_size)) {
+    font-size: $_size;
+    line-height: mz-get-line-height-from-font-size($_size);
+  } @else {
+    @error 'mz-text-size: ' + $_size + ' is not valid';
+  }
+}
+
+@mixin mz-text-size-from-font-size-key($_font-size-key, $_map-font-size: $mz-map-font-size) {
+  @if(map-has-key($_map-font-size, $_font-size-key)) {
+    $_font-size: map-get($_map-font-size, $_font-size-key);
+    @include mz-text-size($_font-size);
+  }
+}
+
+@mixin mz-text-size-from-key($_size-key: $mz-font-size-key-default,$_map-font-size: $mz-map-font-size) {
+  @if(map-has-key($_map-font-size, $_size-key)) {
+    $_font-size: map-get($_map-font-size, $_size-key);
+    font-size: $_font-size;
+    line-height: mz-get-line-height-from-font-size($_font-size);
+  }
+}
+
+@mixin mz-font-size($_size: 'normal') {
+  @if(map-has-key($mz-map-font-size, $_size)) {
+    $_font-size: map-get($mz-map-font-size, $_size);
+    font-size: $_font-size;
+  } @else if (map-has-key($mz-map-heading-font-size, $_size)) {
+    $_font-size: map-get($mz-map-heading-font-size, $_size);
+    font-size: $_font-size;
+  } @else if (is-absolute-length($_size)) {
+    font-size: $_size;
+  } @else {
+    @error 'mz-text-size: ' + $_size + ' is not valid';
+  }
+}
+
+@mixin mz-font-size-from-key($_font-size-key, $_map-font-size: $mz-map-font-size) {
+  @if(map-has-key($_map-font-size, $_font-size-key)) {
+    $_font-size: map-get($_map-font-size, $_font-size-key);
+    font-size: $_font-size;
+  }
+}

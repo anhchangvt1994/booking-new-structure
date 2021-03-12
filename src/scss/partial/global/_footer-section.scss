@@ -1,0 +1,31 @@
+//================================================
+// .footer-section
+//================================================
+
+.footer-section {
+  position: absolute;
+  width: 100%;
+  bottom: 0;
+
+  &__wrap {
+    background: #698b22;
+    padding: 10px;
+  }
+
+  &__title {
+    font-size: 16px;
+    text-align: center;
+    color: #fff;
+  }
+}
+
+.footer-block {
+  display: flex;
+  height: 50px;
+  align-items: center;
+  justify-content: center;
+
+  &__copy-right-label {
+    font-size: 2rem;
+  }
+}

@@ -1,0 +1,27 @@
+{
+	"extends": "eslint:recommended",
+	"rules": {
+    "no-import-assign": 1,
+		"no-alert": 1,
+		"no-bitwise": 0,
+		"camelcase": 1,
+		"curly": 1,
+		"eqeqeq": 0,
+		"no-eq-null": 0,
+		"guard-for-in": 1,
+    "no-empty": ["error", { "allowEmptyCatch": true }],
+    "no-const-assign": 1
+	},
+	"globals": {
+		"$": false
+  },
+  "parserOptions": {
+    "ecmaVersion": 2017,
+    "sourceType": "module"
+  },
+	"env": {
+		"browser": true,
+    "node": true,
+    "es6": true
+	}
+}

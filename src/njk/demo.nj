@@ -1,0 +1,30 @@
+
+
+{% extends objGlobal.path.njk + '/_layout.njk' %}
+<!-- ===============Header=============== -->
+
+{% block header %}
+  {% include "./header/header.njk" %}
+{% endblock %}
+
+<!-- ===============Body=============== -->
+
+{% block body %}
+
+{% endblock %}
+
+<!-- ===============Footer=============== -->
+
+{% block footer %}
+  {% include "./footer/footer.njk" %}
+{% endblock %}
+
+<!-- ===============script=============== -->
+
+{% set arrIntroJsFile = [] %}
+
+{% block script %}
+  {% for introJsFile in arrIntroJsFile %}
+    <script src="{{ 'js/' + introJsFile + '.js' + '?v=' + intRandomNumber }}"></script>
+  {% endfor %}
+{% endblock %}
