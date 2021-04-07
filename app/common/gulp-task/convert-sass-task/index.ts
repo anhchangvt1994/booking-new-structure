@@ -1,8 +1,9 @@
-import modules from '@common/define/module-define';
+import modules, { browserSync } from '@common/define/module-define';
 import APP from '@common/enum/source-enum';
 import {
   STATE_KEYS,
   ACTION_KEYS,
+  MUTATION_KEYS,
   GulpTaskStore,
 } from '@common/gulp-task/store';
 import { ARR_FILE_EXTENSION } from '@common/define/file-define';
@@ -18,15 +19,20 @@ export default class ConvertSassTask {
         modules.gulp.task('sassTmp', function() {
           let _isError = false;
 
+          let _curFilePath = null;
+          let _newestFilePath = null;
+
           return modules.gulp.src(APP.src.scss + '/**/*.{scss,css}')
+          .pipe(modules.cached('scss'))
+          .pipe(modules.dependents())
           .pipe(
             modules.tap(
               function(file) {
                 const filePath = file.path.replace(/\\/g, '/');
 
+                _newestFilePath = filePath;
+
                 modules.gulp.src(filePath)
-                .pipe(modules.cached('scss'))
-                .pipe(modules.dependents())
                 .pipe(modules.print(
                   (filepath) => {
                     if(filepath.indexOf('_env.scss') !== -1) {
@@ -52,9 +58,9 @@ export default class ConvertSassTask {
                     GulpTaskStore.get(STATE_KEYS.is_first_compile_all)
                   );
 
-                  if(!GulpTaskStore.get(STATE_KEYS.is_first_compile_all)) {
-                    GulpTaskStore.get(STATE_KEYS.handler_error_util).reportError();
-                  }
+                  // if(!GulpTaskStore.get(STATE_KEYS.is_first_compile_all)) {
+                  //   GulpTaskStore.get(STATE_KEYS.handler_error_util).reportError();
+                  // }
 
                   this.emit('end');
                 })
@@ -75,13 +81,6 @@ export default class ConvertSassTask {
                   }
 
                   if(!GulpTaskStore.get(STATE_KEYS.is_first_compile_all)) {
-                    // NOTE - Sau lần build đầu tiên sẽ tiến hành checkUpdateError
-                    GulpTaskStore.get(STATE_KEYS.handler_error_util).checkClearError(_isError, ARR_FILE_EXTENSION.CSS);
-                    GulpTaskStore.get(STATE_KEYS.handler_error_util).reportError();
-                    GulpTaskStore.get(STATE_KEYS.handler_error_util).notifSuccess();
-
-                    _isError = false;
-
                     modules.fs.writeFile(APP.src.data + '/tmp-construct-log.json', JSON.stringify(GulpTaskStore.get(STATE_KEYS.tmp_construct)), (err) => {
                       if(err) throw err;
 
@@ -90,6 +89,28 @@ export default class ConvertSassTask {
                   }
                 }))
                 .pipe(modules.gulp.dest(APP.tmp.css))
+                .on('end', function() {
+                  _curFilePath = filePath;
+
+                  if(_curFilePath === _newestFilePath) {
+                    if(!GulpTaskStore.get(STATE_KEYS.is_sass_finish)) {
+                      GulpTaskStore.commit(MUTATION_KEYS.set_is_sass_finish, true);
+                    } else {
+                      if(!GulpTaskStore.get(STATE_KEYS.is_first_compile_all)) {
+                        // NOTE - Sau lần build đầu tiên sẽ tiến hành checkUpdateError
+                        GulpTaskStore.get(STATE_KEYS.handler_error_util).checkClearError(_isError, ARR_FILE_EXTENSION.CSS);
+                        GulpTaskStore.get(STATE_KEYS.handler_error_util).reportError();
+                        GulpTaskStore.get(STATE_KEYS.handler_error_util).notifSuccess();
+
+                        _isError = false;
+                      }
+
+                      browserSync.reload(
+                        { stream: false }
+                      );
+                    }
+                  }
+                });
               }
             )
           )
@@ -97,17 +118,6 @@ export default class ConvertSassTask {
       }
     }
   }; // getTmp()
-
-  getEndTmp() {
-    return {
-      name: 'sassEndTmp',
-      init: function() {
-        modules.gulp.task('sassEndTmp', function(cb) {
-          cb();
-        });
-      }
-    }
-  }; // getEndTmp()
 
   getDist() {
     return {
@@ -123,12 +133,12 @@ export default class ConvertSassTask {
           } else {
             return modules.gulp.src(APP.src.scss + '/**/*.{scss,css}')
             .pipe(modules.plumber())
-            .pipe(modules.sass({ outputStyle: 'compressed' }))
-            .pipe(modules.rename(
-              {
-                'dirname' : '',
-              }
-            ))
+            .pipe(modules.dartSass({ outputStyle: 'compressed' }))
+            .pipe(modules.rename(function(path) {
+              // NOTE đưa tất cả các file về cấp folder root của nó (ở đây là css)
+              path.dirname = '';
+              path.basename+='-style';
+            }))
             .pipe(modules.gulp.dest(APP.dist.css));
           }
         });

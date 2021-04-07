@@ -1,10 +1,11 @@
 import { isEmpty as _isEmpty } from 'lodash';
 
-import modules from '@common/define/module-define';
+import modules, { browserSync } from '@common/define/module-define';
 import APP from '@common/enum/source-enum';
 import {
   STATE_KEYS,
   ACTION_KEYS,
+  MUTATION_KEYS,
   GulpTaskStore,
 } from '@common/gulp-task/store';
 import { ARR_FILE_EXTENSION } from '@common/define/file-define';
@@ -19,10 +20,15 @@ export default class ComipleJsTask {
       init:  function() {
         modules.gulp.task('jsTmp', function() {
           let _isError = false;
-
           let _arrJsErrorFileList = [];
 
-          return modules.gulp.src([APP.src.js + '/**/*.js', APP.src.js + '/**/component/**/*.vue'])
+          let _curFilePath = null;
+          let _newestFilePath = null;
+
+          return modules.gulp.src([
+            APP.src.js + '/**/*.js',
+            APP.src.js + '/**/component/**/*.vue']
+          )
           .pipe(modules.plumber({
             'errorHandler': function(err) {
               _arrJsErrorFileList.push(err.fileName);
@@ -30,17 +36,24 @@ export default class ComipleJsTask {
           }))
           .pipe(modules.cached('.js'))
           .pipe(modules.eslint())
-          .pipe(modules.eslint.failOnError())
-          .on('error', function(err) {
-            _isError = true;
-            GulpTaskStore.get(STATE_KEYS.handler_error_util).handlerError(err, ARR_FILE_EXTENSION.JS, GulpTaskStore.get(STATE_KEYS.is_first_compile_all));
+          .pipe(modules.eslint.result(function(result) {
+            if(result.warningCount > 0 || result.errorCount > 0) {
+              _isError = true;
 
-            if(!GulpTaskStore.get(STATE_KEYS.is_first_compile_all)) {
-              GulpTaskStore.get(STATE_KEYS.handler_error_util).reportError();
+              const errorMessage = result.messages[0];
+
+              GulpTaskStore.get(STATE_KEYS.handler_error_util).handlerError({
+                plugin: 'gulp-eslint',
+                lineNumber: errorMessage.line,
+                fileName: result.filePath,
+                message: errorMessage.message
+              }, ARR_FILE_EXTENSION.JS, GulpTaskStore.get(STATE_KEYS.is_first_compile_all));
+
+              // if(!GulpTaskStore.get(STATE_KEYS.is_first_compile_all)) {
+              //   GulpTaskStore.get(STATE_KEYS.handler_error_util).reportError();
+              // }
             }
-
-            this.emit('end');
-          })
+          }))
           .pipe(modules.tap(function(file) {
             const filePath = file.path.replace(/\\/g, '/');
             // NOTE split file.path và lấy tên file cùng tên folder để rename đúng tên cho file js phía tmp
@@ -68,20 +81,10 @@ export default class ComipleJsTask {
               });
             }
 
-            const strErrKey = (filename === 'index.js' ? foldername + '.js' : filename);
-
-            if(!GulpTaskStore.get(STATE_KEYS.is_first_compile_all)) {
-              // NOTE - Sau lần build đầu tiên sẽ tiến hành checkUpdateError
-              GulpTaskStore.get(STATE_KEYS.handler_error_util).checkClearError(_isError, ARR_FILE_EXTENSION.JS, strErrKey);
-              GulpTaskStore.get(STATE_KEYS.handler_error_util).reportError();
-              GulpTaskStore.get(STATE_KEYS.handler_error_util).notifSuccess();
-
-              _isError = false;
-            }
-
             if(filePathData) {
               filePathData.forEach(function(strFilePath) {
                 strFilePath = strFilePath.replace(/\\/g, '/');
+                _newestFilePath = strFilePath;
 
                 let filename = strFilePath.split('/').slice(-2)[1];
                 const foldername = strFilePath.split('/').slice(-2)[0];
@@ -122,12 +125,41 @@ export default class ComipleJsTask {
                   }
                 }))
                 .pipe(modules.buffer())
-                .on('error', function(err) {
+                .on('error', function() {
                   this.emit('end');
                 })
                 .pipe(
                   modules.gulp.dest(APP.tmp.js)
                 )
+                .on('end', function() {
+                  _curFilePath = strFilePath;
+
+                  if(_curFilePath === _newestFilePath) {
+                    if(!GulpTaskStore.get(STATE_KEYS.is_js_finish)) {
+                      // NOTE Đánh dấu lượt compile đầu tiên đã hoàn thành
+                      if(GulpTaskStore.get(STATE_KEYS.js_dependents).isFirstCompile) {
+                        GulpTaskStore.get(STATE_KEYS.js_dependents).isFirstCompile = false;
+                      }
+
+                      GulpTaskStore.commit(MUTATION_KEYS.set_is_js_finish, true);
+                    } else {
+                      const strErrKey = (filename === 'index.js' ? foldername + '.js' : filename);
+
+                      if(!GulpTaskStore.get(STATE_KEYS.is_first_compile_all)) {
+                        // NOTE - Sau lần build đầu tiên sẽ tiến hành checkUpdateError
+                        GulpTaskStore.get(STATE_KEYS.handler_error_util).checkClearError(_isError, ARR_FILE_EXTENSION.JS, strErrKey);
+                        GulpTaskStore.get(STATE_KEYS.handler_error_util).reportError();
+                        GulpTaskStore.get(STATE_KEYS.handler_error_util).notifSuccess();
+
+                        _isError = false;
+                      }
+
+                      browserSync.reload(
+                        { stream: false }
+                      );
+                    }
+                  }
+                });
               });
             }
           }))
@@ -135,22 +167,6 @@ export default class ComipleJsTask {
       }
     }
   }; // getTmp()
-
-  getEndTmp() {
-    return {
-      name: 'jsEndTmp',
-      init: function() {
-        modules.gulp.task('jsEndTmp', function(cb) {
-          // NOTE Đánh dấu lượt compile đầu tiên đã hoàn thành
-          if(GulpTaskStore.get(STATE_KEYS.js_dependents).isFirstCompile) {
-            GulpTaskStore.get(STATE_KEYS.js_dependents).isFirstCompile = false;
-          }
-
-          cb();
-        });
-      }
-    }
-  }; // getEndTmp()
 
   getDist() {
     return {
@@ -186,6 +202,7 @@ export default class ComipleJsTask {
                 "presets": ["@babel/preset-env"],
               })
               .transform("aliasify")
+              .plugin('tinyify')
               .external('vue') // remove vue from the bundle, if you omit this line whole vue will be bundled with your code
               .bundle()
               .pipe(modules.source(filename + '.' + ARR_FILE_EXTENSION.JS))
@@ -195,7 +212,7 @@ export default class ComipleJsTask {
                 }
               ))
               .pipe(modules.buffer())
-              .pipe(modules.uglify())
+              // .pipe(modules.uglify())
               .pipe(
                 modules.gulp.dest(APP.dist.js)
               );

@@ -1,4 +1,4 @@
-import modules from '@common/define/module-define';
+import { gulp, browserSync } from '@common/define/module-define';
 
 export default class BrowserSyncReloadTask {
   constructor() {};
@@ -7,8 +7,11 @@ export default class BrowserSyncReloadTask {
     return {
       name: 'browserSyncReload',
       init:  function() {
-        modules.gulp.task('browserSyncReload', (cb) => {
-          modules.browserSync.reload()
+        gulp.task('browserSyncReload', (cb) => {
+          browserSync.reload(
+            { stream: false }
+          );
+
           cb();
         });
       }

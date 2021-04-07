@@ -5,6 +5,11 @@ import '@common/enum/tmp-directory-enum/tmp-directory-interface';
 //! ANCHOR - Define relative variable for Store
 
 export const STATE_KEYS = {
+  is_njk_finish: 'is_njk_finish',
+  is_sass_finish: 'is_sass_finish',
+  is_js_finish: 'is_js_finish',
+  is_browser_sync_finish: 'is_browser_sync_finish',
+
   handler_error_util: 'handler_error_util',
   update_version: 'update_version',
   is_first_compile_all: 'is_first_compile_all',
@@ -16,6 +21,11 @@ export const STATE_KEYS = {
 };
 
 export const MUTATION_KEYS = {
+  set_is_njk_finish: 'set_is_njk_finish',
+  set_is_sass_finish: 'set_is_sass_finish',
+  set_is_js_finish: 'set_is_js_finish',
+  set_is_browser_sync_finish: 'set_is_browser_sync_finish',
+
   set_handler_error_util: 'set_handler_error_util',
   set_update_version: 'set_update_version',
   set_is_first_compile_all: 'set_is_first_compile_all',
@@ -32,13 +42,38 @@ export const ACTION_KEYS = {
 
 export const GulpTaskStore = new Store({
   state: {
+    [STATE_KEYS.is_njk_finish]: false,
+    [STATE_KEYS.is_sass_finish]: false,
+    [STATE_KEYS.is_js_finish]: false,
+    [STATE_KEYS.is_browser_sync_finish]: false,
+
     [STATE_KEYS.handler_error_util]: null,
     [STATE_KEYS.update_version]: null,
     [STATE_KEYS.is_first_compile_all]: true,
     [STATE_KEYS.tmp_construct]: {},
+    [STATE_KEYS.move_file]: null,
+    [STATE_KEYS.js_dependents]: null,
+    [STATE_KEYS.njk_dependents]: null,
+    [STATE_KEYS.dummy_data_manager]: null,
   },
 
   mutations: {
+    [MUTATION_KEYS.set_is_njk_finish]: function(state, payload) {
+      state[STATE_KEYS.is_njk_finish] = payload;
+    },
+
+    [MUTATION_KEYS.set_is_sass_finish]: function(state, payload) {
+      state[STATE_KEYS.is_sass_finish] = payload;
+    },
+
+    [MUTATION_KEYS.set_is_js_finish]: function(state, payload) {
+      state[STATE_KEYS.is_js_finish] = payload;
+    },
+
+    [MUTATION_KEYS.set_is_browser_sync_finish]: function(state, payload) {
+      state[STATE_KEYS.is_browser_sync_finish] = payload;
+    },
+
     [MUTATION_KEYS.set_handler_error_util]: function(state, payload) {
       state[STATE_KEYS.handler_error_util] = payload;
     },

@@ -12,7 +12,6 @@ import {
   PrettierHtmlTaskFormatted as PrettierHtmlTask,
   DummyDataTaskFormatted as DummyDataTask,
   DoAfterBuildTaskFormatted as DoAfterBuildTask,
-  BrowserSyncTaskFormatted as BrowserSyncTask,
 } from '@common/gulp-task/gulp-task-manager';
 
 import {
@@ -31,9 +30,6 @@ CleanTask.dist.init();
 //-- convert sass to css into tmp
 ConvertSassTask.tmp.init();
 
-//-- end convert sass tmp
-ConvertSassTask.end_tmp.init();
-
 //-- convert sass to css into dist
 ConvertSassTask.dist.init();
 
@@ -46,9 +42,6 @@ PrettierCssTask.tmp.init();
 //-- compile js into tmp
 CompileJsTask.tmp.init();
 
-//-- end compile js tmp
-CompileJsTask.end_tmp.init();
-
 //-- compile js into dist
 CompileJsTask.dist.init();
 
@@ -59,9 +52,6 @@ CopyFontTask.dist.init();
 //! ANCHOR - ConvertNunjuckTask
 //-- convert nunjuck to html into tmp
 ConvertNunjuckTask.tmp.init();
-
-//-- end compile njk tmp
-ConvertNunjuckTask.end_tmp.init();
 
 //-- convert nunjuck to html into dist
 ConvertNunjuckTask.dist.init();
@@ -92,30 +82,19 @@ WatchTmpWithoutTemplateTask.init();
 //-- doAfterBuild task
 DoAfterBuildTask.tmp.init();
 
-//! ANCHOR - BrowserSyncTask.tmp
-//-- browserSync task
-BrowserSyncTask.tmp.init();
-
 //! ANCHOR - task runner
 //-- dev script
 //? build tmp with template njk
 gulp.task('dev:template', gulp.series(
   CleanTask.tmp.name,
   gulp.parallel(
-    gulp.series(
-      ConvertSassTask.tmp.name,
-      ConvertSassTask.end_tmp.name,
-    ),
+    ConvertSassTask.tmp.name,
 
-    gulp.series(
-      CompileJsTask.tmp.name,
-      CompileJsTask.end_tmp.name,
-    ),
+    CompileJsTask.tmp.name,
 
     gulp.series(
       DummyDataTask.tmp.name,
       ConvertNunjuckTask.tmp.name,
-      ConvertNunjuckTask.end_tmp.name,
     ),
   ),
 
@@ -123,7 +102,6 @@ gulp.task('dev:template', gulp.series(
 
   gulp.parallel(
     WatchTmpWithTemplateTask.name,
-    BrowserSyncTask.tmp.name,
   )
 ));
 
@@ -131,21 +109,14 @@ gulp.task('dev:template', gulp.series(
 gulp.task('dev', gulp.series(
   CleanTask.tmp.name,
   gulp.parallel(
-    gulp.series(
-      ConvertSassTask.tmp.name,
-      ConvertSassTask.end_tmp.name,
-    ),
-
-    gulp.series(
-      CompileJsTask.tmp.name,
-      CompileJsTask.end_tmp.name,
-    ),
+    ConvertSassTask.tmp.name,
+    CompileJsTask.tmp.name,
   ),
 
   DoAfterBuildTask.tmp.name,
+
   gulp.parallel(
     WatchTmpWithoutTemplateTask.name,
-    BrowserSyncTask.tmp.name,
   )
 ));
 

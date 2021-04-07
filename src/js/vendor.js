@@ -1,6 +1,7 @@
 const vendor = (() => {
   return {
     init() {
+      console.log('run');
     }
   }
 })();

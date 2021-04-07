@@ -13,11 +13,11 @@ import {
 } from '@common/gulp-task/store';
 import {
   CompileJsTaskFormatted as CompileJsTask,
-  BrowserSyncReloadTaskFormatted as BrowserSyncReloadTask
+  // BrowserSyncReloadTaskFormatted as BrowserSyncReloadTask
 } from '@common/gulp-task/gulp-task-manager';
 
 // NOTE - Khởi tạo BrowserSyncReloadTask
-BrowserSyncReloadTask.tmp.init();
+// BrowserSyncReloadTask.tmp.init();
 
 export default class WatchJsTask {
   constructor() {};
@@ -26,13 +26,19 @@ export default class WatchJsTask {
     return {
       name: 'watchJs',
       init:  function() {
-        gulp.watch([APP.src.js + '/**/*.js', APP.src.js + '/**/component/**/*.vue'], gulp.series(
+        gulp.watch([
+          APP.src.js + '/**/*.js',
+          APP.src.js + '/**/component/**/*.vue'
+        ], gulp.series(
           CompileJsTask.tmp.name,
-          BrowserSyncReloadTask.tmp.name,
+          // BrowserSyncReloadTask.tmp.name,
         ));
 
         WatchTaskStore.get(WATCH_TASK_STATE_KEYS.group_watch_file)({
-          'source_path_url': [APP.src.js + '/**/*.js', APP.src.js + '/**/component/**/*.vue'],
+          'source_path_url': [
+            APP.src.js + '/**/*.js',
+            APP.src.js + '/**/component/**/*.vue'
+          ],
           'relative_task_list': {
             'remove': function(filePath) {
               let filename = filePath.split('\\').slice(-2)[1];

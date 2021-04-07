@@ -24,7 +24,8 @@ interface ResourceConstruct {
   'project': string,
   'port': any, // NOTE - Lưu ý những thông tin này cần được config trong file host trước
   'ip_address': string, // NOTE - Lưu ý những thông tin này cần được config trong file host trước
-  'host': string, // NOTE - Lưu ý những thông tin này cần được config trong file host trước
+  'base_url': string, // NOTE - Lưu ý những thông tin này cần được config trong file host trước
+  'static_url': string, // NOTE - Lưu ý những thông tin này cần được config trong file host trước
   'local': string,
   'path': PathListItemDataConstruct,
   'resource': ResourceItemConstruct,
@@ -37,7 +38,8 @@ export const RESOURCE: ResourceConstruct = {
   'project': 'gulp',
   'port': process.env.PORT || 3000,
   'ip_address': null,
-  'host': 'dev.vn',
+  'base_url': 'dev.vn',
+  'static_url': 'static.dev.vn',
   'local': 'localhost',
 
   'path': {
@@ -98,6 +100,6 @@ if(process.env.NODE_ENV === 'dev') {
   BASE_URL = 'http://' + RESOURCE.ip_address + ':' + RESOURCE.port;
   BASE_STATIC_URL = 'http://' + RESOURCE.ip_address + ':' + RESOURCE.port;
 } else if (process.env.NODE_ENV === 'production') {
-  BASE_URL = 'http://' + RESOURCE.host + ':' + RESOURCE.port;
-  BASE_STATIC_URL = 'http://static.' + RESOURCE.host + ':' + RESOURCE.port;
+  BASE_URL = 'http://' + RESOURCE.base_url;
+  BASE_STATIC_URL = 'http://' + RESOURCE.static_url;
 }

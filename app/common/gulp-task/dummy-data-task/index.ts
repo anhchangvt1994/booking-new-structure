@@ -1,13 +1,12 @@
 import { isEmpty as _isEmpty } from 'lodash';
 
-import modules from '@common/define/module-define';
+import modules, { browserSync } from '@common/define/module-define';
 import APP from '@common/enum/source-enum';
 import {
   STATE_KEYS,
   GulpTaskStore,
 } from '@common/gulp-task/store';
 import { ARR_FILE_EXTENSION } from '@common/define/file-define';
-import EVN_APPLICATION from '@common/define/enviroment-define';
 import {
   RESOURCE,
   BASE_STATIC_URL
@@ -73,9 +72,9 @@ export default class DummyDataTask {
 
                 GulpTaskStore.get(STATE_KEYS.handler_error_util).handlerError(responseData, ARR_FILE_EXTENSION.JSON, GulpTaskStore.get(STATE_KEYS.is_first_compile_all));
 
-                if(!GulpTaskStore.get(STATE_KEYS.is_first_compile_all)) {
-                  GulpTaskStore.get(STATE_KEYS.handler_error_util).reportError();
-                }
+                // if(!GulpTaskStore.get(STATE_KEYS.is_first_compile_all)) {
+                //   GulpTaskStore.get(STATE_KEYS.handler_error_util).reportError();
+                // }
               } else {
                 GulpTaskStore.get(STATE_KEYS.handler_error_util).checkClearError(_isError, ARR_FILE_EXTENSION.JSON, filename + '.' + ARR_FILE_EXTENSION.JSON);
               }
@@ -83,11 +82,11 @@ export default class DummyDataTask {
               responseData = (_isError ? {} : responseData.data);
 
               return {
-                file: filePath.split('/')[filePath.split('/').length - 2],
-                namepage: filePath.split('/')[filePath.split('/').length - 2],
+                file: filename,
+                namepage: filename,
                 data: responseData,
                 CACHE_VERSION: GulpTaskStore.get(STATE_KEYS.update_version),
-                EVN_APPLICATION: EVN_APPLICATION.dev,
+                EVN_APPLICATION: process.env.NODE_ENV,
                 LAYOUT_CONFIG: {
                   'imageUrl' : BASE_STATIC_URL + '/image', // NOTE - Vì image sử dụng trong layout config cho những file render numjuck sang html thường có dạng '{{ LAYOUT_CONFIG.imageUrl }}/fantasy-image08.jpg' nên để dev tự thêm / sẽ clear hơn khi sử dụng với nunjuck
                   'cssUrl' : BASE_STATIC_URL + '/tmp/css/',
@@ -108,19 +107,26 @@ export default class DummyDataTask {
             })
             .pipe(modules.rename(function(path) {
               path.basename = filename;
-
-              // NOTE - Sau lần build đầu tiên sẽ tiến hành checkUpdateError
-              if(!GulpTaskStore.get(STATE_KEYS.is_first_compile_all)) {
-                const strErrKey = path.basename + '.' + ARR_FILE_EXTENSION.NJK;
-                // NOTE - Sau lần build đầu tiên sẽ tiến hành checkUpdateError
-                GulpTaskStore.get(STATE_KEYS.handler_error_util).checkClearError(_isError, ARR_FILE_EXTENSION.NJK, strErrKey);
-                GulpTaskStore.get(STATE_KEYS.handler_error_util).reportError();
-                GulpTaskStore.get(STATE_KEYS.handler_error_util).notifSuccess();
-
-                _isError = false;
-              }
             }))
             .pipe(modules.gulp.dest(APP.tmp.path))
+            .on('end', function() {
+              if(GulpTaskStore.get(STATE_KEYS.is_njk_finish)) {
+                // NOTE - Sau lần build đầu tiên sẽ tiến hành checkUpdateError
+                if(!GulpTaskStore.get(STATE_KEYS.is_first_compile_all)) {
+                  const strErrKey = filename + '.' + ARR_FILE_EXTENSION.NJK;
+                  // NOTE - Sau lần build đầu tiên sẽ tiến hành checkUpdateError
+                  GulpTaskStore.get(STATE_KEYS.handler_error_util).checkClearError(_isError, ARR_FILE_EXTENSION.NJK, strErrKey);
+                  GulpTaskStore.get(STATE_KEYS.handler_error_util).reportError();
+                  GulpTaskStore.get(STATE_KEYS.handler_error_util).notifSuccess();
+
+                  _isError = false;
+                }
+
+                browserSync.reload(
+                  { stream: false }
+                );
+              }
+            })
           }));
         })
       }

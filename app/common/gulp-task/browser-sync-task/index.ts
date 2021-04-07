@@ -1,6 +1,11 @@
 import modules from '@common/define/module-define';
 import APP from '@common/enum/source-enum';
 import {
+  STATE_KEYS,
+  MUTATION_KEYS,
+  GulpTaskStore,
+} from '@common/gulp-task/store';
+import {
   RESOURCE,
 } from '@common/config/resource-config';
 
@@ -13,7 +18,7 @@ export default class BrowserSyncTask {
       init:  function() {
         modules.gulp.task("browserSync", function() {
           return modules.browserSync.init({
-            reloadDelay: 250, // Fix htmlprocess watch not change
+            reloadDelay: 50, // Fix htmlprocess watch not change
             open: false, // Stop auto open browser
             cors: false,
             port: RESOURCE.port,
@@ -48,6 +53,18 @@ export default class BrowserSyncTask {
             server: {
               baseDir: APP.lab.path,
               index: "/tmp/home-page.html",
+            },
+
+            callbacks: {
+              /**
+               * This 'ready' callback can be used
+               * to access the Browsersync instance
+               */
+              ready: function(err, bs) {
+                if(!GulpTaskStore.get(STATE_KEYS.is_browser_sync_finish)) {
+                  GulpTaskStore.commit(MUTATION_KEYS.set_is_browser_sync_finish, true);
+                }
+              }
             }
           }); // end modules.browserSync
         }); // end modules.gulp

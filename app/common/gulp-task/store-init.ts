@@ -19,15 +19,18 @@ const generateRandomNumber = new GenerateRandom();
 
 GulpTaskStore.commit(MUTATION_KEYS.set_update_version, generateRandomNumber.version);
 
-// NOTE - Update new cache version mỗi 10 phút
-setInterval(function() {
-  generateRandomNumber.updateVersion();
+// NOTE - Update new cache version mỗi 5 phút
 
-  GulpTaskStore.commit(MUTATION_KEYS.set_update_version, generateRandomNumber.version);
+if(process.env.NODE_ENV === 'dev') {
+  setInterval(function() {
+    generateRandomNumber.updateVersion();
 
-  console.log(modules.ansiColors.blueBright(`update new Sass cache version: ${generateRandomNumber.version}`));
-  console.log(modules.ansiColors.blueBright(`update new Nunjucks cache version: ${generateRandomNumber.version}`));
-}, 600000);
+    GulpTaskStore.commit(MUTATION_KEYS.set_update_version, generateRandomNumber.version);
+
+    console.log(modules.ansiColors.blueBright(`update new Sass cache version: ${generateRandomNumber.version}`));
+    console.log(modules.ansiColors.blueBright(`update new Nunjucks cache version: ${generateRandomNumber.version}`));
+  }, 300000);
+}
 
 // NOTE - Setup value for 'tmp_construct'
 GulpTaskStore.commit(MUTATION_KEYS.set_tmp_construct, ARR_TMP_CONSTRUCT);

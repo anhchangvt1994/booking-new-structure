@@ -1,4 +1,7 @@
 {
+  "ts-node": {
+    "transpileOnly": true
+  },
   "compileOnSave": true,
   "compilerOptions": {
     "target": "es6",
@@ -24,6 +27,12 @@
     },
     "typeRoots": ["./node_modules/@types","./app/common"],
   },
+
+  "include": [
+    "gulpfile.ts",
+    "app/common/**/*",
+    "src/dummy-data/*",
+  ],
 
   "exclude": [
     "node_modules",

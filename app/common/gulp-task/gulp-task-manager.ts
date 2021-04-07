@@ -11,8 +11,6 @@ import ConvertNunjuckTask from '@common/gulp-task/convert-nunjuck-task';
 import PrettierHtmlTask from '@common/gulp-task/prettier-html-task';
 import DummyDataTask from '@common/gulp-task/dummy-data-task';
 import DoAfterBuildTask from '@common/gulp-task/do-after-build-task';
-import BrowserSyncReloadTask from '@common/gulp-task/browser-sync-reload-task';
-import BrowserSyncTask from '@common/gulp-task/browser-sync-task';
 
 const GulpTaskFormatted = (task) => {
   let gulpTaskFormatted = {
@@ -74,9 +72,3 @@ export const DummyDataTaskFormatted = GulpTaskFormatted(new DummyDataTask());
 
 // NOTE - format DoAfterBuildTask
 export const DoAfterBuildTaskFormatted = GulpTaskFormatted(new DoAfterBuildTask());
-
-// NOTE - format BrowserSyncReloadTask
-export const BrowserSyncReloadTaskFormatted = GulpTaskFormatted(new BrowserSyncReloadTask());
-
-// NOTE - format BrowserSyncTask
-export const BrowserSyncTaskFormatted = GulpTaskFormatted(new BrowserSyncTask());

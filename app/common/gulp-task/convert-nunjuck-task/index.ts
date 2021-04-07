@@ -1,14 +1,14 @@
 import { isEmpty as _isEmpty } from 'lodash';
 
-import modules from '@common/define/module-define';
+import modules, { browserSync } from '@common/define/module-define';
 import APP from '@common/enum/source-enum';
 import {
   STATE_KEYS,
   ACTION_KEYS,
+  MUTATION_KEYS,
   GulpTaskStore,
 } from '@common/gulp-task/store';
 import { ARR_FILE_EXTENSION } from '@common/define/file-define';
-import EVN_APPLICATION from '@common/define/enviroment-define';
 import {
   RESOURCE,
   BASE_STATIC_URL
@@ -24,6 +24,9 @@ export default class ConvertNunjuckTask {
       init:  function() {
         modules.gulp.task('njkTmp', function() {
           let _isError = false;
+
+          let _curFilePath = null;
+          let _newestFilePath = null;
 
           // NOTE - Define enviroment method for nunjucks render
           const _manageEnviroment = function(env) {
@@ -69,6 +72,7 @@ export default class ConvertNunjuckTask {
             ) {
               filePathData.forEach(function(filePath) {
                 filePath = filePath.replace(/\\/g, '/');
+                _newestFilePath = filePath;
 
                 let filename = filePath.split('/').slice(-2)[1];
 
@@ -95,9 +99,9 @@ export default class ConvertNunjuckTask {
 
                     GulpTaskStore.get(STATE_KEYS.handler_error_util).handlerError(responseData, ARR_FILE_EXTENSION.JSON, GulpTaskStore.get(STATE_KEYS.is_first_compile_all));
 
-                    if(!GulpTaskStore.get(STATE_KEYS.is_first_compile_all)) {
-                      GulpTaskStore.get(STATE_KEYS.handler_error_util).reportError();
-                    }
+                    // if(!GulpTaskStore.get(STATE_KEYS.is_first_compile_all)) {
+                    //   GulpTaskStore.get(STATE_KEYS.handler_error_util).reportError();
+                    // }
                   } else {
                     GulpTaskStore.get(STATE_KEYS.handler_error_util).checkClearError(_isError, ARR_FILE_EXTENSION.JSON, filename + '.' + ARR_FILE_EXTENSION.JSON);
                   }
@@ -109,7 +113,7 @@ export default class ConvertNunjuckTask {
                     namepage: filename,
                     data: responseData,
                     CACHE_VERSION: GulpTaskStore.get(STATE_KEYS.update_version),
-                    EVN_APPLICATION: EVN_APPLICATION.dev,
+                    ENV_APPLICATION: process.env.NODE_ENV,
                     LAYOUT_CONFIG: {
                       'imageUrl' : BASE_STATIC_URL + '/image', // NOTE - Vì image sử dụng trong layout config cho những file render numjuck sang html thường có dạng '{{ LAYOUT_CONFIG.imageUrl }}/fantasy-image08.jpg' nên để dev tự thêm / sẽ clear hơn khi sử dụng với nunjuck
                       'cssUrl' : BASE_STATIC_URL + '/tmp/css/',
@@ -129,26 +133,14 @@ export default class ConvertNunjuckTask {
                   _isError = true;
                   GulpTaskStore.get(STATE_KEYS.handler_error_util).handlerError(err, ARR_FILE_EXTENSION.NJK, GulpTaskStore.get(STATE_KEYS.is_first_compile_all));
 
-                  if(!GulpTaskStore.get(STATE_KEYS.is_first_compile_all)) {
-                    GulpTaskStore.get(STATE_KEYS.handler_error_util).reportError();
-                  }
+                  // if(!GulpTaskStore.get(STATE_KEYS.is_first_compile_all)) {
+                  //   GulpTaskStore.get(STATE_KEYS.handler_error_util).reportError();
+                  // }
 
                   this.emit('end');
                 })
                 .pipe(modules.rename(function(path) {
                   path.basename = filename;
-
-                  // NOTE - Sau lần build đầu tiên sẽ tiến hành checkUpdateError
-                  if(!GulpTaskStore.get(STATE_KEYS.is_first_compile_all)) {
-                    const strErrKey = path.basename + '.' + ARR_FILE_EXTENSION.NJK;
-                    // NOTE - Sau lần build đầu tiên sẽ tiến hành checkUpdateError
-                    GulpTaskStore.get(STATE_KEYS.handler_error_util).checkClearError(_isError, ARR_FILE_EXTENSION.NJK, strErrKey);
-                    GulpTaskStore.get(STATE_KEYS.handler_error_util).reportError();
-                    GulpTaskStore.get(STATE_KEYS.handler_error_util).notifSuccess();
-
-                    _isError = false;
-                  }
-
                   // NOTE Nếu construct HTML đối với path file name hiện tại đang rỗng thì nạp vào
                   if(!GulpTaskStore.get(STATE_KEYS.tmp_construct)[ARR_FILE_EXTENSION.HTML][path.basename]) {
                     GulpTaskStore.dispatch(ACTION_KEYS.generate_tmp_construct, generateTmpDirItemConstruct({
@@ -166,6 +158,34 @@ export default class ConvertNunjuckTask {
                   }
                 }))
                 .pipe(modules.gulp.dest(APP.tmp.path))
+                .on('end', function() {
+                  _curFilePath = filePath;
+
+                  if(_curFilePath === _newestFilePath) {
+                    if(!GulpTaskStore.get(STATE_KEYS.is_njk_finish)) {
+                      if(GulpTaskStore.get(STATE_KEYS.njk_dependents).isFirstCompile) {
+                        GulpTaskStore.get(STATE_KEYS.njk_dependents).isFirstCompile = false;
+                      }
+
+                      GulpTaskStore.commit(MUTATION_KEYS.set_is_njk_finish, true);
+                    } else {
+                      // NOTE - Sau lần build đầu tiên sẽ tiến hành checkUpdateError
+                      if(!GulpTaskStore.get(STATE_KEYS.is_first_compile_all)) {
+                        const strErrKey = filename + '.' + ARR_FILE_EXTENSION.NJK;
+                        // NOTE - Sau lần build đầu tiên sẽ tiến hành checkUpdateError
+                        GulpTaskStore.get(STATE_KEYS.handler_error_util).checkClearError(_isError, ARR_FILE_EXTENSION.NJK, strErrKey);
+                        GulpTaskStore.get(STATE_KEYS.handler_error_util).reportError();
+                        GulpTaskStore.get(STATE_KEYS.handler_error_util).notifSuccess();
+
+                        _isError = false;
+                      }
+
+                      browserSync.reload(
+                        { stream: false }
+                      );
+                    }
+                  }
+                });
               });
             }
           }));
@@ -173,22 +193,6 @@ export default class ConvertNunjuckTask {
       }
     }
   }; // getTmp()
-
-  getEndTmp() {
-    return {
-      name: 'njkEndTmp',
-      init: function() {
-        // NOTE xử lý phụ sau khi nunjucks convert finish
-        modules.gulp.task('njkEndTmp', function(cb) {
-          if(GulpTaskStore.get(STATE_KEYS.njk_dependents).isFirstCompile) {
-            GulpTaskStore.get(STATE_KEYS.njk_dependents).isFirstCompile = false;
-          }
-
-          cb();
-        });
-      }
-    }
-  }; // getEndTmp()
 
   getDist() {
     return {
@@ -232,7 +236,7 @@ export default class ConvertNunjuckTask {
                 namepage: filename,
                 data: responseData,
                 CACHE_VERSION: GulpTaskStore.get(STATE_KEYS.update_version),
-                EVN_APPLICATION: EVN_APPLICATION.dev,
+                ENV_APPLICATION: process.env.NODE_ENV,
                 LAYOUT_CONFIG: {
                   'imageUrl' : BASE_STATIC_URL + '/image',
                   'cssUrl' : BASE_STATIC_URL + '/css/',

@@ -10,8 +10,8 @@ import plumber = require('gulp-plumber');
 import cached = require('gulp-cached');
 import ansiColors = require('ansi-colors');
 import dependents = require('gulp-dependents');
-import print = require('gulp-print');
-import browserSync = require('browser-sync');
+let print = require('gulp-print');
+let browserSync = require('browser-sync');
 import prettier = require('gulp-prettier');
 import tap = require('gulp-tap');
 import babel = require('gulp-babel');
@@ -34,6 +34,47 @@ import sassVars = require('gulp-sass-variables');
 import eslint = require('gulp-eslint');
 import util = require('gulp-util');
 
+print = print.default;
+browserSync = browserSync.create();
+
+export {
+  gulp,
+  clean,
+  sass,
+  dartSass,
+  copy,
+
+  // sub dependencies
+  plumber,
+  ansiColors,
+  cached,
+  dependents,
+  print,
+  browserSync,
+  prettier,
+  tap,
+  babel,
+  gulpBrowserify,
+  browserify,
+  babelify,
+  vueify,
+  source,
+  rename,
+  buffer,
+  uglify,
+  cleanCss,
+  data,
+  nunjucksRender,
+  del,
+  path,
+  fs,
+  imageMin,
+  sassVars,
+  uuidv4,
+  eslint,
+  util,
+};
+
 export default {
   gulp,
   clean,
@@ -46,8 +87,8 @@ export default {
   ansiColors,
   cached,
   dependents,
-  print: print.default,
-  browserSync: browserSync.create(),
+  print,
+  browserSync,
   prettier,
   tap,
   babel,
