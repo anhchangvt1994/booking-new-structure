@@ -1,4 +1,5 @@
 import { fs } from '@common/define/module-define';
+import mkdirp from 'mkdirp';
 import APP from '@common/enum/source-enum';
 import { ARR_FILE_EXTENSION } from '@common/define/file-define';
 import { isEmpty as _isEmpty } from 'lodash';
@@ -10,7 +11,7 @@ export const ARR_TMP_CONSTRUCT: TmpDirConstruct = {
   'html': {},
 }
 
-const _tmpConstructLogPath = APP.src.data + '/tmp-construct-log.json';
+const _tmpConstructLogPath = APP.log.path + '/tmp-construct/tmp-construct-log.json';
 let _arrReadTmpDirConstructFile = null;
 
 if(fs.existsSync(_tmpConstructLogPath)) {
@@ -22,7 +23,8 @@ if(fs.existsSync(_tmpConstructLogPath)) {
   }
 } else {
   try {
-    fs.writeFileSync(APP.src.data + '/tmp-construct-log.json', '{}');
+    fs.mkdirSync(APP.log.path + '/tmp-construct/', { recursive: true });
+    fs.writeFileSync(_tmpConstructLogPath, '{}');
     _arrReadTmpDirConstructFile = {};
   } catch(err) {
     console.log(err);

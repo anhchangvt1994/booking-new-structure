@@ -82,7 +82,7 @@ export default class ConvertSassTask {
                   }
 
                   if(!GulpTaskStore.get(STATE_KEYS.is_first_compile_all)) {
-                    modules.fs.writeFile(APP.src.data + '/tmp-construct-log.json', JSON.stringify(GulpTaskStore.get(STATE_KEYS.tmp_construct)), (err) => {
+                    modules.fs.writeFile(APP.log.path + '/tmp-construct/tmp-construct-log.json', JSON.stringify(GulpTaskStore.get(STATE_KEYS.tmp_construct)), (err) => {
                       if(err) throw err;
 
                       console.log('write file: "tmp-construct-log.json" finish.');

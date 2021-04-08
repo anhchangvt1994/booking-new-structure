@@ -24,6 +24,10 @@ interface AppItemConstruct {
 
 interface AppConstruct {
   lab: {path: string},
+  app: {path: string},
+  common: {path: string},
+  log: {path: string},
+
   src: AppItemConstruct,
   tmp: AppItemConstruct,
   dist: AppItemConstruct,
@@ -33,6 +37,16 @@ const APP: AppConstruct = {
   lab: {
     path: _APP_LAB_PATH,
   },
+  app: {
+    path: _APP_LAB_PATH + 'app',
+  },
+  common: {
+    path: _APP_LAB_PATH + 'app/common',
+  },
+  log: {
+    path: _APP_LAB_PATH + 'app/log',
+  },
+
   src: {
     path : _APP_SRC_PATH,
     scss : _APP_SRC_PATH + 'scss',

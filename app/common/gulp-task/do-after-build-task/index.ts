@@ -26,13 +26,6 @@ export default class DoAfterBuildTask {
               GulpTaskStore.get(STATE_KEYS.is_sass_finish) &&
               GulpTaskStore.get(STATE_KEYS.is_js_finish)
             ) {
-              // NOTE ghi file "tmp-construct-log.json" sau khi lượt build task đầu tiên hoàn thành
-              modules.fs.writeFile(APP.src.data + '/tmp-construct-log.json', JSON.stringify(GulpTaskStore.get(STATE_KEYS.tmp_construct)), (err) => {
-                if(err) throw err;
-
-                console.log('write file: "tmp-construct-log.json" finish.');
-              });
-
               browserSync.init({
                 reloadDelay: 0, // Fix htmlprocess watch not change
                 reloadOnRestart: true,
@@ -85,7 +78,7 @@ export default class DoAfterBuildTask {
                       // NOTE ghi nhận lượt buid đầu tiên đã xong
                       GulpTaskStore.commit(MUTATION_KEYS.set_is_first_compile_all, false);
 
-                      modules.fs.writeFile(APP.src.data + '/tmp-construct-log.json', JSON.stringify(GulpTaskStore.get(STATE_KEYS.tmp_construct)), (err) => {
+                      modules.fs.writeFile(APP.log.path + '/tmp-construct/tmp-construct-log.json', JSON.stringify(GulpTaskStore.get(STATE_KEYS.tmp_construct)), (err) => {
                         if(err) throw err;
 
                         console.log('write file: "tmp-construct-log.json" finish.');
