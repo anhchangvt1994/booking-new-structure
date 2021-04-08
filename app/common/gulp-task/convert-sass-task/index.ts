@@ -32,6 +32,19 @@ export default class ConvertSassTask {
 
                 _newestFilePath = filePath;
 
+                const filePathSplitSlice = filePath.split('/').slice(-2);
+                const foldername = filePathSplitSlice[0];
+
+                let selfDest = APP.tmp.css;
+
+                if(foldername !== 'scss') {
+                  const filename = filePathSplitSlice[1];
+
+                  if(!/^_/.test(filename)) {
+                    selfDest = APP.src.js + '/partial/' + filename.replace('.scss','');
+                  }
+                }
+
                 modules.gulp.src(filePath)
                 .pipe(modules.print(
                   (filepath) => {
@@ -58,10 +71,6 @@ export default class ConvertSassTask {
                     GulpTaskStore.get(STATE_KEYS.is_first_compile_all)
                   );
 
-                  // if(!GulpTaskStore.get(STATE_KEYS.is_first_compile_all)) {
-                  //   GulpTaskStore.get(STATE_KEYS.handler_error_util).reportError();
-                  // }
-
                   this.emit('end');
                 })
                 .pipe(modules.rename(function(path) {
@@ -76,7 +85,7 @@ export default class ConvertSassTask {
                       generateTmpDirItemConstruct({
                         extension: ARR_FILE_EXTENSION.CSS,
                         file_name: path.basename,
-                        file_path: APP.tmp.css + '/' + path.basename,
+                        file_path: selfDest + '/' + path.basename,
                       })
                     )
                   }
@@ -89,7 +98,7 @@ export default class ConvertSassTask {
                     });
                   }
                 }))
-                .pipe(modules.gulp.dest(APP.tmp.css))
+                .pipe(modules.gulp.dest(selfDest))
                 .on('end', function() {
                   _curFilePath = filePath;
 
@@ -134,13 +143,48 @@ export default class ConvertSassTask {
           } else {
             return modules.gulp.src(APP.src.scss + '/**/*.{scss,css}')
             .pipe(modules.plumber())
-            .pipe(modules.dartSass({ outputStyle: 'compressed' }))
-            .pipe(modules.rename(function(path) {
-              // NOTE đưa tất cả các file về cấp folder root của nó (ở đây là css)
-              path.dirname = '';
-              path.basename+='-style';
-            }))
-            .pipe(modules.gulp.dest(APP.dist.css));
+            .pipe(
+              modules.tap(
+                function(file) {
+                  const filePath = file.path.replace(/\\/g, '/');
+                  const filePathSplitSlice = filePath.split('/').slice(-2);
+                  const foldername = filePathSplitSlice[0];
+
+                  let selfDest = APP.dist.css;
+
+                  if(foldername !== 'scss') {
+                    const filename = filePathSplitSlice[1];
+
+                    if(!/^_/.test(filename)) {
+                      selfDest = APP.src.js + '/partial/' + filename.replace('.scss','');
+                    }
+                  }
+
+                  modules.gulp.src(filePath, {
+                    allowEmpty: true
+                  })
+                  .pipe(modules.print(
+                    (filepath) => {
+                      if(filepath.indexOf('_env.scss') !== -1) {
+                        return modules.ansiColors.blueBright(`update new sass cache version: ${GulpTaskStore.get(STATE_KEYS.update_version)}`);
+                      }
+
+                      return modules.ansiColors.yellow(`compile sass: ${filepath}`);
+                    }
+                  ))
+                  .pipe(modules.sassVars({
+                    '$var-cache-version': GulpTaskStore.get(STATE_KEYS.update_version),
+                  }))
+                  .pipe(modules.dartSass({outputStyle: 'compressed'}))
+                  .pipe(modules.rename(function(path) {
+                    // NOTE đưa tất cả các file về cấp folder root của nó (ở đây là css)
+                    path.dirname = '';
+                    path.basename+='-style';
+                  }))
+                  .pipe(modules.gulp.dest(selfDest))
+                }
+              )
+            )
           }
         });
       }

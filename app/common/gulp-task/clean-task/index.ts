@@ -9,7 +9,10 @@ export default class CleanTask {
       name: 'cleanTmp',
       init: function() {
         modules.gulp.task('cleanTmp', function() {
-          return modules.gulp.src(APP.tmp.path, {read: true, allowEmpty: true})
+          return modules.gulp.src([
+            APP.tmp.path,
+            APP.log.path + '/tmp-construct/*.json'
+          ], {read: true, allowEmpty: true})
           .pipe(modules.clean({ force: true }));
         });
       }

@@ -54,6 +54,15 @@ export default class DoAfterBuildTask {
                 server: {
                   baseDir: APP.lab.path,
                   index: "/tmp/home-page.html",
+
+                  // NOTE - Dùng để config khi sử dụng SPA
+                  middleware: function(req, res, next) {
+                    if(!req.url.match(/\/image|\/font|\/js|\/css/img)) {
+                      req.url = '/tmp/index.html';
+                    }
+
+                    return next();
+                  },
                 },
 
                 callbacks: {

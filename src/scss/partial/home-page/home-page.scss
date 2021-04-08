@@ -1,10 +1,10 @@
 //===================
 // partial global
 //===================
-@use '../global/component/content-modal';
+@use '../global/component/basic-modal';
 
 //===================
 // partial home-page
 //===================
-@use './_home-page';
-@use './home-section';
+@use './management-section';
+@use './management-modal';

@@ -18,16 +18,21 @@ export default class ComipleJsTask {
     return {
       name: 'jsTmp',
       init:  function() {
+        let _isError = false;
+
+        let _curFilePath = null;
+        let _newestFilePath = null;
+
         modules.gulp.task('jsTmp', function() {
-          let _isError = false;
           let _arrJsErrorFileList = [];
 
-          let _curFilePath = null;
-          let _newestFilePath = null;
+          let _compileTimeout = null;
 
           return modules.gulp.src([
-            APP.src.js + '/**/*.js',
-            APP.src.js + '/**/component/**/*.vue']
+              APP.src.js + '/**/*.js',
+              APP.src.js + '/partial/**/*.vue',
+              APP.src.js + '/partial/**/*.css'
+            ]
           )
           .pipe(modules.plumber({
             'errorHandler': function(err) {
@@ -58,109 +63,126 @@ export default class ComipleJsTask {
 
             let filePathData = null;
 
-            if(
-              filename === 'index.js' ||
-              foldername === 'js'
-            ) {
-              // NOTE Khi một file index thay đổi thì nó sẽ tự build lại, nên trong xử lý dependent chỉ update lại các dependents file của file index đó, chứ hok return ra mảng index cần build lại
-              filePathData = GulpTaskStore.get(STATE_KEYS.js_dependents).generate({
-                'folder-name': foldername,
-                'path': file.path,
-                'file-name': filename,
-                'content': file.contents,
-              });
-            } else {
-              filePathData = GulpTaskStore.get(STATE_KEYS.js_dependents).generate({
-                'folder-name': foldername,
-                'file-name': filename,
-                'content': file.contents,
-              });
+            // NOTE - Nếu file được change không phải là css file thì thực hiện truy vấn graph dependencies bình thường
+            if(filename.indexOf(ARR_FILE_EXTENSION.CSS) === -1) {
+              if(filename === 'app.js') {
+                // NOTE Khi một file index thay đổi thì nó sẽ tự build lại, nên trong xử lý dependent chỉ update lại các dependents file của file index đó, chứ hok return ra mảng index cần build lại
+                filePathData = GulpTaskStore.get(STATE_KEYS.js_dependents).generate({
+                  'folder-name': foldername,
+                  'path': file.path,
+                  'file-name': filename,
+                  'content': file.contents,
+                });
+              } else {
+                filePathData = GulpTaskStore.get(STATE_KEYS.js_dependents).generate({
+                  'folder-name': foldername,
+                  'file-name': filename,
+                  'content': file.contents,
+                });
+              }
+            } else if(!GulpTaskStore.get(STATE_KEYS.is_first_compile_all)) {
+              if(_compileTimeout) {
+                clearTimeout(_compileTimeout);
+                _compileTimeout = null;
+              }
+
+              _compileTimeout = setTimeout(function() {
+                _compileLoop([APP.src.js + '/app.js']);
+
+                _compileTimeout = null;
+              }, 100);
+
+              return;
             }
 
             if(filePathData) {
-              filePathData.forEach(function(strFilePath) {
-                strFilePath = strFilePath.replace(/\\/g, '/');
-                _newestFilePath = strFilePath;
-
-                let filename = strFilePath.split('/').slice(-2)[1];
-                const foldername = strFilePath.split('/').slice(-2)[0];
-
-                filename = (foldername!=='js' ? foldername : filename.replace('.js', ''));
-
-                modules.browserify({ entries: [strFilePath] }) // path to your entry file here
-                .transform(modules.vueify, {
-                  "presets": ["@babel/preset-env"],
-                })
-                .transform(modules.babelify, {
-                  "presets": ["@babel/preset-env"],
-                })
-                .transform("aliasify")
-                .external('vue') // remove vue from the bundle, if you omit this line whole vue will be bundled with your code
-                .bundle()
-                .pipe(modules.source(filename + '.' + ARR_FILE_EXTENSION.JS))
-                .pipe(modules.print(
-                  filepath => {
-                    return modules.ansiColors.yellow(`compile js: ${filepath}`);
-                  }
-                ))
-                .pipe(modules.rename(function() {
-                  // NOTE Nếu construct JS đối với path file name hiện tại đang rỗng thì nạp vào
-                  if(!GulpTaskStore.get(STATE_KEYS.tmp_construct)[ARR_FILE_EXTENSION.JS][filename]) {
-                    GulpTaskStore.dispatch(ACTION_KEYS.generate_tmp_construct, generateTmpDirItemConstruct({
-                      extension: ARR_FILE_EXTENSION.JS,
-                      file_name: filename,
-                      file_path: APP.tmp.js + '/' + filename,
-                    }));
-                  }
-
-                  if(!GulpTaskStore.get(STATE_KEYS.is_first_compile_all)) {
-                    modules.fs.writeFile(APP.log.path + '/tmp-construct/tmp-construct-log.json', JSON.stringify(GulpTaskStore.get(STATE_KEYS.tmp_construct)), (err) => {
-                      if(err) throw err;
-
-                      console.log('write file: "tmp-construct-log.json" finish.');
-                    });
-                  }
-                }))
-                .pipe(modules.buffer())
-                .on('error', function() {
-                  this.emit('end');
-                })
-                .pipe(
-                  modules.gulp.dest(APP.tmp.js)
-                )
-                .on('end', function() {
-                  _curFilePath = strFilePath;
-
-                  if(_curFilePath === _newestFilePath) {
-                    if(!GulpTaskStore.get(STATE_KEYS.is_js_finish)) {
-                      // NOTE Đánh dấu lượt compile đầu tiên đã hoàn thành
-                      if(GulpTaskStore.get(STATE_KEYS.js_dependents).isFirstCompile) {
-                        GulpTaskStore.get(STATE_KEYS.js_dependents).isFirstCompile = false;
-                      }
-
-                      GulpTaskStore.commit(MUTATION_KEYS.set_is_js_finish, true);
-                    } else {
-                      const strErrKey = (filename === 'index.js' ? foldername + '.js' : filename);
-
-                      if(GulpTaskStore.get(STATE_KEYS.is_js_finish)) {
-                        // NOTE - Sau lần build đầu tiên sẽ tiến hành checkUpdateError
-                        GulpTaskStore.get(STATE_KEYS.handler_error_util).checkClearError(_isError, ARR_FILE_EXTENSION.JS, strErrKey);
-                        GulpTaskStore.get(STATE_KEYS.handler_error_util).reportError();
-                        GulpTaskStore.get(STATE_KEYS.handler_error_util).notifSuccess();
-
-                        _isError = false;
-                      }
-
-                      browserSync.reload(
-                        { stream: false }
-                      );
-                    }
-                  }
-                });
-              });
+              _compileLoop(filePathData);
             }
           }))
         });
+
+        function _compileLoop(filePathData) {
+          filePathData.forEach(function(strFilePath) {
+            strFilePath = strFilePath.replace(/\\/g, '/');
+            _newestFilePath = strFilePath;
+
+            let filename = strFilePath.split('/').slice(-2)[1];
+            const foldername = strFilePath.split('/').slice(-2)[0];
+
+            filename = (foldername!=='js' ? foldername : filename.replace('.js', ''));
+
+            modules.browserify({ entries: [strFilePath] }) // path to your entry file here
+            .transform(modules.vueify, {
+              "presets": ["@babel/preset-env"],
+            })
+            .transform(modules.babelify, {
+              "presets": ["@babel/preset-env"],
+            })
+            .transform("aliasify")
+            .external('vue') // remove vue from the bundle, if you omit this line whole vue will be bundled with your code
+            .bundle()
+            .pipe(modules.source(filename + '.' + ARR_FILE_EXTENSION.JS))
+            .pipe(modules.print(
+              filepath => {
+                return modules.ansiColors.yellow(`compile js: ${filepath}`);
+              }
+            ))
+            .pipe(modules.rename(function() {
+              // NOTE Nếu construct JS đối với path file name hiện tại đang rỗng thì nạp vào
+              if(!GulpTaskStore.get(STATE_KEYS.tmp_construct)[ARR_FILE_EXTENSION.JS][filename]) {
+                GulpTaskStore.dispatch(ACTION_KEYS.generate_tmp_construct, generateTmpDirItemConstruct({
+                  extension: ARR_FILE_EXTENSION.JS,
+                  file_name: filename,
+                  file_path: APP.tmp.js + '/' + filename,
+                }));
+              }
+
+              if(!GulpTaskStore.get(STATE_KEYS.is_first_compile_all)) {
+                modules.fs.writeFile(APP.log.path + '/tmp-construct/tmp-construct-log.json', JSON.stringify(GulpTaskStore.get(STATE_KEYS.tmp_construct)), (err) => {
+                  if(err) throw err;
+
+                  console.log('write file: "tmp-construct-log.json" finish.');
+                });
+              }
+            }))
+            .pipe(modules.buffer())
+            .on('error', function() {
+              this.emit('end');
+            })
+            .pipe(
+              modules.gulp.dest(APP.tmp.js)
+            )
+            .on('end', function() {
+              _curFilePath = strFilePath;
+
+              if(_curFilePath === _newestFilePath) {
+                if(!GulpTaskStore.get(STATE_KEYS.is_js_finish)) {
+                  // NOTE Đánh dấu lượt compile đầu tiên đã hoàn thành
+                  if(GulpTaskStore.get(STATE_KEYS.js_dependents).isFirstCompile) {
+                    GulpTaskStore.get(STATE_KEYS.js_dependents).isFirstCompile = false;
+                  }
+
+                  GulpTaskStore.commit(MUTATION_KEYS.set_is_js_finish, true);
+                } else {
+                  const strErrKey = (filename === 'index.js' ? foldername + '.js' : filename);
+
+                  if(GulpTaskStore.get(STATE_KEYS.is_js_finish)) {
+                    // NOTE - Sau lần build đầu tiên sẽ tiến hành checkUpdateError
+                    GulpTaskStore.get(STATE_KEYS.handler_error_util).checkClearError(_isError, ARR_FILE_EXTENSION.JS, strErrKey);
+                    GulpTaskStore.get(STATE_KEYS.handler_error_util).reportError();
+                    GulpTaskStore.get(STATE_KEYS.handler_error_util).notifSuccess();
+
+                    _isError = false;
+                  }
+
+                  browserSync.reload(
+                    { stream: false }
+                  );
+                }
+              }
+            });
+          });
+        } // _compileLoop()
       }
     }
   }; // getTmp()
@@ -177,23 +199,6 @@ export default class ComipleJsTask {
                 'targetPathUrl': APP.dist.js,
                 'compressModule': uglify({
                   compress: {
-                    // sequences     : true,  // join consecutive statemets with the “comma operator”
-                    // properties    : true,  // optimize property access: a["foo"] → a.foo
-                    // dead_code     : true,  // discard unreachable code
-                    // drop_debugger : true,  // discard “debugger” statements
-                    // unsafe        : false, // some unsafe optimizations (see below)
-                    // conditionals  : true,  // optimize if-s and conditional expressions
-                    // comparisons   : true,  // optimize comparisons
-                    // evaluate      : true,  // evaluate constant expressions
-                    // booleans      : true,  // optimize boolean expressions
-                    // loops         : true,  // optimize loops
-                    // unused        : true,  // drop unused variables/functions
-                    // hoist_funs    : true,  // hoist function declarations
-                    // hoist_vars    : false, // hoist variable declarations
-                    // if_return     : true,  // optimize if-s followed by return/continue
-                    // join_vars     : true,  // join var declarations
-                    // side_effects  : true,  // drop side-effect-free statements
-                    // global_defs   : {}     // global definitions
                     sequences: true,
                     properties: true,
                     dead_code: true,
@@ -215,8 +220,8 @@ export default class ComipleJsTask {
             );
           } else {
             const _JS_COMPILE_FILE_LIST = [
+              APP.src.js + '/app.js',
               APP.src.js + '/vendor.js',
-              APP.src.js + '/**/index.js',
             ];
 
             return modules.gulp.src(_JS_COMPILE_FILE_LIST)
@@ -234,7 +239,6 @@ export default class ComipleJsTask {
                 "presets": ["@babel/preset-env"],
               })
               .transform("aliasify")
-              // .plugin('tinyify')
               .external('vue') // remove vue from the bundle, if you omit this line whole vue will be bundled with your code
               .bundle()
               .pipe(modules.source(filename + '.' + ARR_FILE_EXTENSION.JS))

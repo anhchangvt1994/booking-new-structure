@@ -23,7 +23,7 @@ if(fs.existsSync(_tmpConstructLogPath)) {
   }
 } else {
   try {
-    fs.mkdirSync(APP.log.path + '/tmp-construct/', { recursive: true });
+    fs.mkdirSync(APP.log.path + '/tmp-construct', { recursive: true });
     fs.writeFileSync(_tmpConstructLogPath, '{}');
     _arrReadTmpDirConstructFile = {};
   } catch(err) {

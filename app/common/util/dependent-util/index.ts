@@ -42,7 +42,7 @@ const ARR_EXTENSION_FILE: arrExtensionFileConstruct = {
 };
 
 const ARR_REGEX_EXEC_FILE: ArrRegexExecFileConstruct = {
-  [ARR_EXTENSION_FILE.JS_EXTENSION]: /import(?:["'\s]*[\w*${}\n\r\t, ]+from\s*)?["'\s]["'\s](.*[@\w_-]+)["'\s].*;$/mg,
+  [ARR_EXTENSION_FILE.JS_EXTENSION]: /import(?:["'\s]*[\w*${}\n\r\t, ]+from\s*)?["'\s]["'\s](.*[@\w_-]+)["'\s].*$|import\(["|'](.*?)['|"]+\)/mg,
   [ARR_EXTENSION_FILE.NJK_EXTENSION]: /{%(?:.*)[extends|include|import]["'\s](?:.*)["'\s](.*[@\w_-]+)["'].*%}/mg,
 };
 
@@ -114,7 +114,7 @@ class Dependents {
         self._regexExecFileContent.lastIndex++;
       }
 
-      const arrFilePathSplit = arrMatchResult[1].split('/');
+      const arrFilePathSplit = (arrMatchResult[1] || arrMatchResult[2]).split('/');
 
       // NOTE Thường là những libraries hoặc plugins, nên sẽ không cần lưu lại, vì những libraries hoặc plugins sẽ ít khi thay đổi
       if(arrFilePathSplit.length <= 1) {

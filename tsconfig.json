@@ -18,11 +18,12 @@
       "@common/lib/*": ["app/common/lib/*"],
       "@common/store/*": ["app/common/store/*"],
       "@source-data": ["src/data/index"],
-      "@src/data/*": ["src/data/*"],
       "@src/dummy-data/*": ["src/dummy-data/*"],
 
+      "~cssPath/*": ["./tmp/css/*"],
       "~jsPath/*": ["./src/js/*"],
       "~jsBasePath/*": ["./src/js/base/*"],
+      "~jsConfigPath/*": ["./src/js/config/*"],
       "~jsPartialPath/*": ["./src/js/partial/*"],
     },
     "typeRoots": ["./node_modules/@types","./app/common"],

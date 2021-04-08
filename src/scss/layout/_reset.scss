@@ -22,15 +22,22 @@ time, mark, audio, video {
 	vertical-align: baseline;
 }
 
+* {
+  box-sizing: border-box;
+}
+
 html {
   font-size: 8px;
   height: 100%;
 }
 
 body {
+  position: relative;
   line-height: var.$line-height-default;
   font-size: var.$font-size-default;
   width: 100%;
+  padding-bottom: 90px;
+  min-height: 100%;
   overflow-x: hidden;
   line-height: 1.5;
 

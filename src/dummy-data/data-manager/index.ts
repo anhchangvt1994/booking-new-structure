@@ -48,7 +48,7 @@ class DataManager {
 
   private _init() {
     this._dataJSONFileUrl = {
-      [RESOURCE.resource['home-page'].name]: APP.src.dummy_data + '/data-store/' + RESOURCE.resource['home-page'].name + '.json',
+      [RESOURCE.resource['index'].dummy_data_name]: APP.src.dummy_data + '/data-store/' + RESOURCE.resource['index'].dummy_data_name + '.json',
     };
   }; // _init()
 
@@ -69,10 +69,12 @@ class DataManager {
       message = error.at + ' | ' + message;
     }
 
+    const dummyDataName = RESOURCE?.dummy_data_name_map?.[data.body_class_name] ?? data.body_class_name;
+
     const DummyDataResponse: DataDummyResponseInterface = {
       success: jsonContent.ok,
       plugin: 'Dummy Data',
-      file: RESOURCE.path.dummy_data + '/data-store/' + data.body_class_name + '.' + self._TYPE_FILE_JSON,
+      file: RESOURCE.path.dummy_data + '/data-store/' + dummyDataName + '.' + self._TYPE_FILE_JSON,
       message,
       data,
     };

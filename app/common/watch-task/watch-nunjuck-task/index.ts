@@ -13,12 +13,7 @@ import {
 } from '@common/gulp-task/store';
 import {
   ConvertNunjuckTaskFormatted as ConvertNunjuckTask,
-  // BrowserSyncReloadTaskFormatted as BrowserSyncReloadTask
 } from '@common/gulp-task/gulp-task-manager';
-
-// NOTE - Khởi tạo BrowserSyncReloadTask
-// BrowserSyncReloadTask.tmp.init();
-
 export default class WatchNunjuckTask {
   constructor() {};
 
@@ -28,7 +23,6 @@ export default class WatchNunjuckTask {
       init:  function() {
         gulp.watch(APP.src.njk + '/**/*.njk', gulp.series(
           ConvertNunjuckTask.tmp.name,
-          // BrowserSyncReloadTask.tmp.name,
         ));
 
         WatchTaskStore.get(WATCH_TASK_STATE_KEYS.group_watch_file)({

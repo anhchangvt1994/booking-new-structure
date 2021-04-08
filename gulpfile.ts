@@ -90,13 +90,13 @@ gulp.task('dev:template', gulp.series(
   gulp.parallel(
     ConvertSassTask.tmp.name,
 
-    CompileJsTask.tmp.name,
-
     gulp.series(
       DummyDataTask.tmp.name,
       ConvertNunjuckTask.tmp.name,
     ),
   ),
+
+  CompileJsTask.tmp.name,
 
   DoAfterBuildTask.tmp.name,
 
@@ -108,10 +108,10 @@ gulp.task('dev:template', gulp.series(
 //? build tmp without layout njk
 gulp.task('dev', gulp.series(
   CleanTask.tmp.name,
-  gulp.parallel(
-    ConvertSassTask.tmp.name,
-    CompileJsTask.tmp.name,
-  ),
+
+  ConvertSassTask.tmp.name,
+
+  CompileJsTask.tmp.name,
 
   DoAfterBuildTask.tmp.name,
 
@@ -132,8 +132,9 @@ gulp.task('prod', gulp.series(
     ConvertSassTask.dist.name,
     CopyFontTask.dist.name,
     CopyImageTask.dist.name,
-    CompileJsTask.dist.name,
   ),
+
+  CompileJsTask.dist.name,
 
   PrettierHtmlTask.dist.name,
 ));

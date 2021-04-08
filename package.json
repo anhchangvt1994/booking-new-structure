@@ -11,12 +11,18 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "lodash": "^4.17.15"
+    "he": "^1.2.0",
+    "lodash": "^4.17.15",
+    "vue-router": "^3.5.1",
+    "vuelidate": "^0.7.6",
+    "vuex": "^3.6.2"
   },
   "aliasify": {
     "aliases": {
+      "~cssPath": "./tmp/css",
       "~jsPath": "./src/js",
       "~jsBasePath": "./src/js/base",
+      "~jsConfigPath": "./src/js/config",
       "~jsPartialPath": "./src/js/partial",
       "vue": "vue/dist/vue.js"
     },

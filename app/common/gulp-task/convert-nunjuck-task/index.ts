@@ -87,8 +87,12 @@ export default class ConvertNunjuckTask {
                 .pipe(modules.data((file) => {
                   let responseData:any = {};
 
+                  let dummyDataName = null;
+
                   if(RESOURCE.resource[filename]?.dummy_data) {
-                    responseData = GulpTaskStore.get(STATE_KEYS.dummy_data_manager).get(filename) || {};
+                    dummyDataName = RESOURCE.resource[filename]?.dummy_data_name ?? null;
+
+                    responseData = GulpTaskStore.get(STATE_KEYS.dummy_data_manager).get(dummyDataName) || {};
                   }
 
                   if(
@@ -99,7 +103,7 @@ export default class ConvertNunjuckTask {
 
                     GulpTaskStore.get(STATE_KEYS.handler_error_util).handlerError(responseData, ARR_FILE_EXTENSION.JSON, GulpTaskStore.get(STATE_KEYS.is_first_compile_all));
                   } else {
-                    GulpTaskStore.get(STATE_KEYS.handler_error_util).checkClearError(_isError, ARR_FILE_EXTENSION.JSON, filename + '.' + ARR_FILE_EXTENSION.JSON);
+                    GulpTaskStore.get(STATE_KEYS.handler_error_util).checkClearError(_isError, ARR_FILE_EXTENSION.JSON, dummyDataName + '.' + ARR_FILE_EXTENSION.JSON);
                   }
 
                   responseData = (_isError ? {} : responseData.data);
@@ -217,7 +221,9 @@ export default class ConvertNunjuckTask {
               let responseData:any = {};
 
               if(RESOURCE.resource[filename]?.dummy_data) {
-                responseData = GulpTaskStore.get(STATE_KEYS.dummy_data_manager).get(filename) || {};
+                let dummyDataName = RESOURCE.resource[filename]?.dummy_data_name ?? null;
+
+                responseData = GulpTaskStore.get(STATE_KEYS.dummy_data_manager).get(dummyDataName) || {};
               }
 
               responseData = (!responseData.success ? {} : responseData.data);

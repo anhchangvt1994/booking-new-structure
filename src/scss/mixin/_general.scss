@@ -22,8 +22,22 @@ DOC:
 */
 
 @mixin placeholder {
-  &::-webkit-input-placeholder {@content}
-  &:-moz-placeholder           {@content}
-  &::-moz-placeholder          {@content}
-  &:-ms-input-placeholder      {@content}
+  &::-webkit-input-placeholder {@content};
+  &:-moz-placeholder           {@content};
+  &::-moz-placeholder          {@content};
+  &:-ms-input-placeholder      {@content};
+}
+
+@mixin boxshadow() {
+  -webkit-box-shadow: 0 3px 6px rgba(#505F77, 16%), 0 3px 6px rgba(#505F77, 23%);  /* Safari 3-4, iOS 4.0.2 - 4.2, Android 2.3+ */
+  -moz-box-shadow:    0 3px 6px rgba(#505F77, 16%), 0 3px 6px rgba(#505F77, 23%);  /* Firefox 3.5 - 3.6 */
+  box-shadow:         0 3px 6px rgba(#505F77, 16%), 0 3px 6px rgba(#505F77, 23%);  /* Opera 10.5, IE 9, Firefox 4+, Chrome 6+, iOS 5 */
+}
+
+@mixin block-center-transform {
+  left: 50%;
+  top: 50%;
+  -webkit-transform: translate(-50%); /* Ch <36, Saf 5.1+, iOS < 9.2, An =<4.4.4 */
+      -ms-transform: translate(-50%); /* IE 9 */
+          transform: translate(-50%); /* IE 10, Fx 16+, Op 12.1+ */
 }

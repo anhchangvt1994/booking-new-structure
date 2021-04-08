@@ -49,7 +49,9 @@ export default class DummyDataTask {
             // NOTE split file.path và lấy tên file cùng tên folder để rename đúng tên cho file njk phía tmp
             const filename = filePath.split('/').slice(-2)[1].replace('.json','');
 
-            filePath = APP.src.njk + '/template/' + filename + '.' + ARR_FILE_EXTENSION.NJK;
+            const njkFilename = RESOURCE?.dummy_data_name_map?.[filename] ?? filename;
+
+            filePath = APP.src.njk + '/template/' + njkFilename + '.' + ARR_FILE_EXTENSION.NJK;
 
             modules.gulp.src(filePath)
             .pipe(modules.print(
@@ -78,8 +80,8 @@ export default class DummyDataTask {
               responseData = (_isError ? {} : responseData.data);
 
               return {
-                file: filename,
-                namepage: filename,
+                file: njkFilename,
+                namepage: njkFilename,
                 data: responseData,
                 CACHE_VERSION: GulpTaskStore.get(STATE_KEYS.update_version),
                 EVN_APPLICATION: process.env.NODE_ENV,
@@ -102,13 +104,13 @@ export default class DummyDataTask {
               this.emit('end');
             })
             .pipe(modules.rename(function(path) {
-              path.basename = filename;
+              path.basename = njkFilename;
             }))
             .pipe(modules.gulp.dest(APP.tmp.path))
             .on('end', function() {
               if(!GulpTaskStore.get(STATE_KEYS.is_first_compile_all)) {
                 // NOTE - Sau lần build đầu tiên sẽ tiến hành checkUpdateError
-                const strErrKey = filename + '.' + ARR_FILE_EXTENSION.NJK;
+                const strErrKey = njkFilename + '.' + ARR_FILE_EXTENSION.NJK;
 
                 GulpTaskStore.get(STATE_KEYS.handler_error_util).checkClearError(_isError, ARR_FILE_EXTENSION.NJK, strErrKey);
                 GulpTaskStore.get(STATE_KEYS.handler_error_util).reportError();

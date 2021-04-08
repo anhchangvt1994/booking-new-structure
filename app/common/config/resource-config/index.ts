@@ -2,14 +2,14 @@ import APP from '@common/enum/source-enum';
 
 interface ResourceItemDataConstruct {
   'name'?: string,
-  "arrCssFile": string[],
-  "arrJsFile": string[],
+  'arrCssFile': string[],
+  'arrJsFile': string[],
   'dummy_data'?: boolean,
+  'dummy_data_name'?: string,
 };
 
 interface ResourceItemConstruct {
   [key:string]: ResourceItemDataConstruct,
-  'home-page': ResourceItemDataConstruct,
 };
 
 interface PathListItemDataConstruct {
@@ -29,6 +29,9 @@ interface ResourceConstruct {
   'local': string,
   'path': PathListItemDataConstruct,
   'resource': ResourceItemConstruct,
+  'dummy_data_name_map': {
+    [key:string]: string,
+  }
 };
 
 export let BASE_URL:string;
@@ -65,16 +68,19 @@ export const RESOURCE: ResourceConstruct = {
       ]
     },
 
-    "home-page" : {
-      'name': 'home-page',
-      "arrCssFile" : [
-        "home-page-style"
-      ],
+    "index" : {
+      'name': 'index',
+      "arrCssFile" : [],
       "arrJsFile" : [
-        "home-page"
+        "app"
       ],
       'dummy_data': true,
+      'dummy_data_name': 'app'
     },
+  },
+
+  'dummy_data_name_map': {
+    'app': 'index'
   },
 };
 
