@@ -1,5 +1,5 @@
+import _ = require('lodash');
 import Store from '@common/store';
-import { ARR_FILE_EXTENSION } from '@common/define/file-define';
 import '@common/enum/tmp-directory-enum/tmp-directory-interface';
 
 //! ANCHOR - Define relative variable for Store
@@ -111,21 +111,22 @@ export const GulpTaskStore = new Store({
     [ACTION_KEYS.generate_tmp_construct]: function(context, payload) {
       if(
         !payload ||
+        !payload.ext_tmp_construct ||
         (
-          !payload.hasOwnProperty('file-name') ||
-          !payload.hasOwnProperty('file-path')
+          !payload.ext_tmp_construct.file_name ||
+          !payload.ext_tmp_construct.file_path
         )
       ) {
         return;
       }
 
-      const curTmpConstruct = context.get(STATE_KEYS.tmp_construct);
+      const tmpConstructClone = _.cloneDeep(context.get(STATE_KEYS.tmp_construct));
+      const extension = payload.ext;
+      const extTmpConstruct = payload.ext_tmp_construct;
 
-      curTmpConstruct[ARR_FILE_EXTENSION.CSS][payload['file-name']] = payload;
+      tmpConstructClone[extension][extTmpConstruct.file_name] = extTmpConstruct;
 
-      const newTmpConstruct = curTmpConstruct;
-
-      context.commit(MUTATION_KEYS.set_tmp_construct, newTmpConstruct);
+      context.commit(MUTATION_KEYS.set_tmp_construct, tmpConstructClone);
     },
   },
 });

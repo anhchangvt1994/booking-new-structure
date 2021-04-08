@@ -74,8 +74,9 @@ export default class ConvertSassTask {
                     GulpTaskStore.dispatch(
                       ACTION_KEYS.generate_tmp_construct,
                       generateTmpDirItemConstruct({
-                        'file-name': path.basename,
-                        'file-path': APP.tmp.css + '/' + path.basename,
+                        extension: ARR_FILE_EXTENSION.CSS,
+                        file_name: path.basename,
+                        file_path: APP.tmp.css + '/' + path.basename,
                       })
                     )
                   }

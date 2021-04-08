@@ -19,9 +19,6 @@ export default class DoAfterBuildTask {
       name: 'doAfterBuildTask',
       init:  function() {
         modules.gulp.task('doAfterBuildTask', function(cb) {
-          // NOTE ghi nhận lượt buid đầu tiên đã xong
-          GulpTaskStore.commit(MUTATION_KEYS.set_is_first_compile_all, false);
-
           let _onTaskFinish = setInterval(function() {
 
             if(
@@ -37,7 +34,7 @@ export default class DoAfterBuildTask {
               });
 
               browserSync.init({
-                reloadDelay: 50, // Fix htmlprocess watch not change
+                reloadDelay: 0, // Fix htmlprocess watch not change
                 reloadOnRestart: true,
                 open: false, // Stop auto open browser
                 cors: false,
@@ -72,7 +69,7 @@ export default class DoAfterBuildTask {
                    * to access the Browsersync instance
                    */
                   ready: function(err, bs) {
-                    if(!GulpTaskStore.get(STATE_KEYS.is_browser_sync_finish)) {
+                    if(GulpTaskStore.get(STATE_KEYS.is_first_compile_all)) {
                       browserSync.reload(
                         { stream: false }
                       );
@@ -84,6 +81,15 @@ export default class DoAfterBuildTask {
                       }
 
                       GulpTaskStore.commit(MUTATION_KEYS.set_is_browser_sync_finish, true);
+
+                      // NOTE ghi nhận lượt buid đầu tiên đã xong
+                      GulpTaskStore.commit(MUTATION_KEYS.set_is_first_compile_all, false);
+
+                      modules.fs.writeFile(APP.src.data + '/tmp-construct-log.json', JSON.stringify(GulpTaskStore.get(STATE_KEYS.tmp_construct)), (err) => {
+                        if(err) throw err;
+
+                        console.log('write file: "tmp-construct-log.json" finish.');
+                      });
                     }
                   }
                 }

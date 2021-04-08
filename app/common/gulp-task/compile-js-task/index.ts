@@ -1,6 +1,6 @@
-import { isEmpty as _isEmpty } from 'lodash';
+import { isEmpty as _isEmpty, forIn as _forIn } from 'lodash';
 
-import modules, { browserSync } from '@common/define/module-define';
+import modules, { browserSync, uglify } from '@common/define/module-define';
 import APP from '@common/enum/source-enum';
 import {
   STATE_KEYS,
@@ -48,10 +48,6 @@ export default class ComipleJsTask {
                 fileName: result.filePath,
                 message: errorMessage.message
               }, ARR_FILE_EXTENSION.JS, GulpTaskStore.get(STATE_KEYS.is_first_compile_all));
-
-              // if(!GulpTaskStore.get(STATE_KEYS.is_first_compile_all)) {
-              //   GulpTaskStore.get(STATE_KEYS.handler_error_util).reportError();
-              // }
             }
           }))
           .pipe(modules.tap(function(file) {
@@ -111,8 +107,9 @@ export default class ComipleJsTask {
                   // NOTE Nếu construct JS đối với path file name hiện tại đang rỗng thì nạp vào
                   if(!GulpTaskStore.get(STATE_KEYS.tmp_construct)[ARR_FILE_EXTENSION.JS][filename]) {
                     GulpTaskStore.dispatch(ACTION_KEYS.generate_tmp_construct, generateTmpDirItemConstruct({
-                      'file-name': filename,
-                      'file-path': APP.tmp.js + '/' + filename,
+                      extension: ARR_FILE_EXTENSION.JS,
+                      file_name: filename,
+                      file_path: APP.tmp.js + '/' + filename,
                     }));
                   }
 
@@ -145,7 +142,7 @@ export default class ComipleJsTask {
                     } else {
                       const strErrKey = (filename === 'index.js' ? foldername + '.js' : filename);
 
-                      if(!GulpTaskStore.get(STATE_KEYS.is_first_compile_all)) {
+                      if(GulpTaskStore.get(STATE_KEYS.is_js_finish)) {
                         // NOTE - Sau lần build đầu tiên sẽ tiến hành checkUpdateError
                         GulpTaskStore.get(STATE_KEYS.handler_error_util).checkClearError(_isError, ARR_FILE_EXTENSION.JS, strErrKey);
                         GulpTaskStore.get(STATE_KEYS.handler_error_util).reportError();
@@ -178,7 +175,42 @@ export default class ComipleJsTask {
               {
                 'sourcePathUrl': APP.tmp.js + '/*.' + ARR_FILE_EXTENSION.JS,
                 'targetPathUrl': APP.dist.js,
-                'compressModule': modules.uglify(),
+                'compressModule': uglify({
+                  compress: {
+                    // sequences     : true,  // join consecutive statemets with the “comma operator”
+                    // properties    : true,  // optimize property access: a["foo"] → a.foo
+                    // dead_code     : true,  // discard unreachable code
+                    // drop_debugger : true,  // discard “debugger” statements
+                    // unsafe        : false, // some unsafe optimizations (see below)
+                    // conditionals  : true,  // optimize if-s and conditional expressions
+                    // comparisons   : true,  // optimize comparisons
+                    // evaluate      : true,  // evaluate constant expressions
+                    // booleans      : true,  // optimize boolean expressions
+                    // loops         : true,  // optimize loops
+                    // unused        : true,  // drop unused variables/functions
+                    // hoist_funs    : true,  // hoist function declarations
+                    // hoist_vars    : false, // hoist variable declarations
+                    // if_return     : true,  // optimize if-s followed by return/continue
+                    // join_vars     : true,  // join var declarations
+                    // side_effects  : true,  // drop side-effect-free statements
+                    // global_defs   : {}     // global definitions
+                    sequences: true,
+                    properties: true,
+                    dead_code: true,
+                    drop_debugger: true,
+                    comparisons: true,
+                    conditionals: true,
+                    evaluate: true,
+                    booleans: true,
+                    loops: true,
+                    unused: true,
+                    hoist_funs: true,
+                    if_return: true,
+                    join_vars: true,
+                    negate_iife: true,
+                    drop_console: true
+                  }
+                }),
               }
             );
           } else {
@@ -202,7 +234,7 @@ export default class ComipleJsTask {
                 "presets": ["@babel/preset-env"],
               })
               .transform("aliasify")
-              .plugin('tinyify')
+              // .plugin('tinyify')
               .external('vue') // remove vue from the bundle, if you omit this line whole vue will be bundled with your code
               .bundle()
               .pipe(modules.source(filename + '.' + ARR_FILE_EXTENSION.JS))
@@ -212,7 +244,25 @@ export default class ComipleJsTask {
                 }
               ))
               .pipe(modules.buffer())
-              // .pipe(modules.uglify())
+              .pipe(uglify({
+                compress: {
+                  sequences: true,
+                  properties: true,
+                  dead_code: true,
+                  drop_debugger: true,
+                  comparisons: true,
+                  conditionals: true,
+                  evaluate: true,
+                  booleans: true,
+                  loops: true,
+                  unused: true,
+                  hoist_funs: true,
+                  if_return: true,
+                  join_vars: true,
+                  negate_iife: true,
+                  drop_console: true
+                }
+              }))
               .pipe(
                 modules.gulp.dest(APP.dist.js)
               );

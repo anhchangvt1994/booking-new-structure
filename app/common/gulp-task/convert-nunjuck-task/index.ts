@@ -98,10 +98,6 @@ export default class ConvertNunjuckTask {
                     _isError = true;
 
                     GulpTaskStore.get(STATE_KEYS.handler_error_util).handlerError(responseData, ARR_FILE_EXTENSION.JSON, GulpTaskStore.get(STATE_KEYS.is_first_compile_all));
-
-                    // if(!GulpTaskStore.get(STATE_KEYS.is_first_compile_all)) {
-                    //   GulpTaskStore.get(STATE_KEYS.handler_error_util).reportError();
-                    // }
                   } else {
                     GulpTaskStore.get(STATE_KEYS.handler_error_util).checkClearError(_isError, ARR_FILE_EXTENSION.JSON, filename + '.' + ARR_FILE_EXTENSION.JSON);
                   }
@@ -133,21 +129,16 @@ export default class ConvertNunjuckTask {
                   _isError = true;
                   GulpTaskStore.get(STATE_KEYS.handler_error_util).handlerError(err, ARR_FILE_EXTENSION.NJK, GulpTaskStore.get(STATE_KEYS.is_first_compile_all));
 
-                  // if(!GulpTaskStore.get(STATE_KEYS.is_first_compile_all)) {
-                  //   GulpTaskStore.get(STATE_KEYS.handler_error_util).reportError();
-                  // }
-
                   this.emit('end');
                 })
                 .pipe(modules.rename(function(path) {
                   path.basename = filename;
                   // NOTE Nếu construct HTML đối với path file name hiện tại đang rỗng thì nạp vào
-                  if(!GulpTaskStore.get(STATE_KEYS.tmp_construct)[ARR_FILE_EXTENSION.HTML][path.basename]) {
-                    GulpTaskStore.dispatch(ACTION_KEYS.generate_tmp_construct, generateTmpDirItemConstruct({
-                      'file-name': path.basename,
-                      'file-path': APP.tmp.path + '/' + path.basename,
-                    }));
-                  }
+                  GulpTaskStore.dispatch(ACTION_KEYS.generate_tmp_construct, generateTmpDirItemConstruct({
+                    extension: ARR_FILE_EXTENSION.HTML,
+                    file_name: path.basename,
+                    file_path: APP.tmp.path + path.basename,
+                  }));
 
                   if(!GulpTaskStore.get(STATE_KEYS.is_first_compile_all)) {
                     modules.fs.writeFile(APP.src.data + '/tmp-construct-log.json', JSON.stringify(GulpTaskStore.get(STATE_KEYS.tmp_construct)), (err) => {

@@ -71,10 +71,6 @@ export default class DummyDataTask {
                 _isError = true;
 
                 GulpTaskStore.get(STATE_KEYS.handler_error_util).handlerError(responseData, ARR_FILE_EXTENSION.JSON, GulpTaskStore.get(STATE_KEYS.is_first_compile_all));
-
-                // if(!GulpTaskStore.get(STATE_KEYS.is_first_compile_all)) {
-                //   GulpTaskStore.get(STATE_KEYS.handler_error_util).reportError();
-                // }
               } else {
                 GulpTaskStore.get(STATE_KEYS.handler_error_util).checkClearError(_isError, ARR_FILE_EXTENSION.JSON, filename + '.' + ARR_FILE_EXTENSION.JSON);
               }
@@ -110,17 +106,15 @@ export default class DummyDataTask {
             }))
             .pipe(modules.gulp.dest(APP.tmp.path))
             .on('end', function() {
-              if(GulpTaskStore.get(STATE_KEYS.is_njk_finish)) {
+              if(!GulpTaskStore.get(STATE_KEYS.is_first_compile_all)) {
                 // NOTE - Sau lần build đầu tiên sẽ tiến hành checkUpdateError
-                if(!GulpTaskStore.get(STATE_KEYS.is_first_compile_all)) {
-                  const strErrKey = filename + '.' + ARR_FILE_EXTENSION.NJK;
-                  // NOTE - Sau lần build đầu tiên sẽ tiến hành checkUpdateError
-                  GulpTaskStore.get(STATE_KEYS.handler_error_util).checkClearError(_isError, ARR_FILE_EXTENSION.NJK, strErrKey);
-                  GulpTaskStore.get(STATE_KEYS.handler_error_util).reportError();
-                  GulpTaskStore.get(STATE_KEYS.handler_error_util).notifSuccess();
+                const strErrKey = filename + '.' + ARR_FILE_EXTENSION.NJK;
 
-                  _isError = false;
-                }
+                GulpTaskStore.get(STATE_KEYS.handler_error_util).checkClearError(_isError, ARR_FILE_EXTENSION.NJK, strErrKey);
+                GulpTaskStore.get(STATE_KEYS.handler_error_util).reportError();
+                GulpTaskStore.get(STATE_KEYS.handler_error_util).notifSuccess();
+
+                _isError = false;
 
                 browserSync.reload(
                   { stream: false }

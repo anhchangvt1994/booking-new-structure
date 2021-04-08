@@ -1,6 +1,7 @@
 interface TmpDirItemConstruct {
-  'file-name': string,
-  'file-path': string,
+  'extension'?: string,
+  'file_name': string,
+  'file_path': string,
 }
 
 interface TmpDirConstruct {
