@@ -100,9 +100,7 @@ gulp.task('dev:template', gulp.series(
 
   DoAfterBuildTask.tmp.name,
 
-  gulp.parallel(
-    WatchTmpWithTemplateTask.name,
-  )
+  // WatchTmpWithTemplateTask.name,
 ));
 
 //? build tmp without layout njk

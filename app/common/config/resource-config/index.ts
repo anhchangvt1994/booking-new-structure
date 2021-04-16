@@ -93,9 +93,12 @@ const Ethernet = OSNetworkInterfaces.Ethernet || Object.values(OSNetworkInterfac
 
 if(Ethernet) {
   Ethernet.some(function(ethernetItem) {
-    const ethernetItemInfo = ethernetItem.family ? ethernetItem : ethernetItem[0];
+    const ethernetItemInfo = ethernetItem.family ? ethernetItem : ethernetItem[1] || ethernetItem[0];
 
-    if(ethernetItemInfo.family.toLowerCase() === 'ipv4') {
+    if(
+      ethernetItemInfo.family.toLowerCase() === 'ipv4' &&
+      ethernetItemInfo.address !== '127.0.0.1'
+    ) {
       RESOURCE.ip_address = ethernetItemInfo.address;
       return true;
     }

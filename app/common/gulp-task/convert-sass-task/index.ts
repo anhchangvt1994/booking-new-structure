@@ -108,16 +108,13 @@ export default class ConvertSassTask {
                     } else {
                       if(!GulpTaskStore.get(STATE_KEYS.is_first_compile_all)) {
                         // NOTE - Sau lần build đầu tiên sẽ tiến hành checkUpdateError
+                        // NOTE - Hiện tại đối với SPA khi compile sass sẽ compile lại app.js, nên việc reportError & notifySuccess sẽ để phía JS xử lý
                         GulpTaskStore.get(STATE_KEYS.handler_error_util).checkClearError(_isError, ARR_FILE_EXTENSION.CSS);
-                        GulpTaskStore.get(STATE_KEYS.handler_error_util).reportError();
-                        GulpTaskStore.get(STATE_KEYS.handler_error_util).notifSuccess();
+                        // GulpTaskStore.get(STATE_KEYS.handler_error_util).reportError();
+                        // GulpTaskStore.get(STATE_KEYS.handler_error_util).notifSuccess();
 
                         _isError = false;
                       }
-
-                      browserSync.reload(
-                        { stream: false }
-                      );
                     }
                   }
                 });

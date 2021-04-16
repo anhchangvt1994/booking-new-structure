@@ -1,6 +1,9 @@
 import { isEmpty as _isEmpty } from 'lodash';
 
-import modules, { browserSync } from '@common/define/module-define';
+import modules, {
+  gulp,
+  browserSync
+} from '@common/define/module-define';
 import {
   RESOURCE,
 } from '@common/config/resource-config';
@@ -11,6 +14,10 @@ import {
   GulpTaskStore,
 } from '@common/gulp-task/store';
 
+import {
+  WatchTmpWithTemplateTask
+} from '@common/watch-task/watch-task-manager';
+
 export default class DoAfterBuildTask {
   constructor() {};
 
@@ -20,7 +27,6 @@ export default class DoAfterBuildTask {
       init:  function() {
         modules.gulp.task('doAfterBuildTask', function(cb) {
           let _onTaskFinish = setInterval(function() {
-
             if(
               GulpTaskStore.get(STATE_KEYS.is_njk_finish) &&
               GulpTaskStore.get(STATE_KEYS.is_sass_finish) &&
@@ -52,8 +58,9 @@ export default class DoAfterBuildTask {
                   ]
                 },
                 server: {
+                  proxy: RESOURCE.ip_address,
                   baseDir: APP.lab.path,
-                  index: "/tmp/home-page.html",
+                  index: "/tmp/index.html",
 
                   // NOTE - Dùng để config khi sử dụng SPA
                   middleware: function(req, res, next) {
@@ -72,9 +79,9 @@ export default class DoAfterBuildTask {
                    */
                   ready: function(err, bs) {
                     if(GulpTaskStore.get(STATE_KEYS.is_first_compile_all)) {
-                      browserSync.reload(
-                        { stream: false }
-                      );
+                      browserSync.reload({
+                        stream: false,
+                      });
 
                       // NOTE Sau khi build xong lượt đầu thì forEach để in error ra nếu có
                       if(GulpTaskStore.get(STATE_KEYS.handler_error_util).arrError) {
@@ -92,6 +99,12 @@ export default class DoAfterBuildTask {
 
                         console.log('write file: "tmp-construct-log.json" finish.');
                       });
+
+                      //! ANCHOR  - watchTask
+                      //-- watch tmp files change task (with template njk)
+                      WatchTmpWithTemplateTask.init();
+
+                      (gulp.series(WatchTmpWithTemplateTask.name)());
                     }
                   }
                 }
